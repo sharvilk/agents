@@ -1,0 +1,2 @@
+# Runs on app-1 only.
+0 2 * * * cd /srv/quillbox && node jobs/usage-report.js >> /var/log/usage-report.log 2>&1

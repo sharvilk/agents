@@ -1,0 +1,177 @@
+{
+  "password-reset": {
+    "target": "docs/plans/password-reset.md",
+    "args": "",
+    "summary": "docs/plans/password-reset.crossfire.md",
+    "expect_gate": [
+      "REVISE",
+      "STOP"
+    ],
+    "max_blockers": null,
+    "defects": [
+      {
+        "id": "account-enumeration",
+        "must_block": true,
+        "all_of": [
+          [
+            "account",
+            "email"
+          ],
+          [
+            "no account uses",
+            "enumerat",
+            "exists",
+            "is registered",
+            "sign up instead",
+            "sign-up message",
+            "different response",
+            "different message"
+          ]
+        ]
+      },
+      {
+        "id": "token-in-access-log",
+        "must_block": true,
+        "all_of": [
+          [
+            "access log",
+            "logged",
+            "logging",
+            "logs",
+            "log line",
+            "log store"
+          ],
+          [
+            "token",
+            "query string",
+            "originalurl",
+            "url"
+          ]
+        ]
+      },
+      {
+        "id": "token-stored-in-plaintext",
+        "must_block": true,
+        "all_of": [
+          [
+            "plaintext",
+            "plain text",
+            "hashed",
+            "unhashed",
+            "as generated",
+            "raw token",
+            "hash the token",
+            "hash it",
+            "sha-256",
+            "sha256"
+          ]
+        ]
+      },
+      {
+        "id": "token-never-expires",
+        "must_block": true,
+        "all_of": [
+          [
+            "expir",
+            "never expire",
+            "valid until",
+            "lifetime",
+            "ttl",
+            "single-use",
+            "single use",
+            "reuse"
+          ]
+        ]
+      },
+      {
+        "id": "hard-delete-breaks-repo-rule",
+        "must_block": true,
+        "all_of": [
+          [
+            "delete from",
+            "hard delete",
+            "hard-delete",
+            "delete statement",
+            "deletes rows",
+            "nightly"
+          ],
+          [
+            "soft",
+            "rule 1",
+            "agents.md",
+            "deleted_at"
+          ]
+        ]
+      }
+    ]
+  },
+  "help-page-copy": {
+    "target": "docs/plans/help-copy.md",
+    "args": "",
+    "summary": "docs/plans/help-copy.crossfire.md",
+    "expect_gate": [
+      "STOP"
+    ],
+    "max_blockers": 0,
+    "defects": []
+  },
+  "report-scheduling": {
+    "target": "docs/questions/report-scheduling.md",
+    "args": "whether",
+    "summary": "docs/questions/report-scheduling.crossfire.md",
+    "expect_gate": [
+      "REVISE",
+      "STOP",
+      "PASS"
+    ],
+    "max_blockers": null,
+    "defects": [
+      {
+        "id": "duplicate-sends-at-least-once",
+        "must_block": false,
+        "all_of": [
+          [
+            "duplicate",
+            "twice",
+            "idempot",
+            "at least once",
+            "at-least-once",
+            "exactly one"
+          ]
+        ]
+      },
+      {
+        "id": "visibility-timeout-shorter-than-run",
+        "must_block": false,
+        "all_of": [
+          [
+            "visibility",
+            "5 minute",
+            "5-minute",
+            "five minute"
+          ],
+          [
+            "12 minute",
+            "12-minute",
+            "twelve",
+            "runtime",
+            "run takes",
+            "longer than"
+          ]
+        ]
+      }
+    ]
+  },
+  "help-page-copy-round2": {
+    "round_of": "help-page-copy",
+    "overlay": "round2",
+    "target": "docs/plans/help-copy.md",
+    "args": "",
+    "summary": "docs/plans/help-copy.crossfire.md",
+    "expect_gate": [
+      "PASS"
+    ],
+    "max_blockers": 0,
+    "defects": []
+  }
+}

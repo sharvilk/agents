@@ -1,0 +1,98 @@
+{
+  "name": "agents",
+  "description": "An AI-agent kit: skills for working with Claude Code agents, with more kinds to come.",
+  "owner": {
+    "name": "Sharvil Kadam",
+    "url": "https://github.com/sharvilk"
+  },
+  "plugins": [
+    {
+      "name": "todo-sync",
+      "source": "./skills/todo-sync",
+      "skills": ".",
+      "description": "Keeps each session's todo list complete in its own file, and rebuilds it from the session's transcript when it goes missing or comes back short.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Sharvil Kadam",
+        "url": "https://github.com/sharvilk"
+      },
+      "license": "Apache-2.0",
+      "repository": "https://github.com/sharvilk/agents",
+      "homepage": "https://github.com/sharvilk/agents",
+      "keywords": [
+        "todo",
+        "session",
+        "recovery",
+        "memory"
+      ]
+    },
+    {
+      "name": "checkpoint",
+      "source": "./skills/checkpoint",
+      "skills": ".",
+      "description": "Brings a session's work to a safe stopping point before a restart, records exactly where it stands, and resumes from that record afterwards.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Sharvil Kadam",
+        "url": "https://github.com/sharvilk"
+      },
+      "license": "Apache-2.0",
+      "repository": "https://github.com/sharvilk/agents",
+      "homepage": "https://github.com/sharvilk/agents",
+      "keywords": [
+        "checkpoint",
+        "restart",
+        "resume",
+        "session",
+        "safety"
+      ],
+      "dependencies": [
+        "todo-sync"
+      ]
+    },
+    {
+      "name": "away-loop",
+      "source": "./skills/away-loop",
+      "skills": ".",
+      "description": "Keeps a session working, visibly, while you are away for hours: a 30-minute wake-up, minor decisions logged, questions queued, one summary when you return.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Sharvil Kadam",
+        "url": "https://github.com/sharvilk"
+      },
+      "license": "Apache-2.0",
+      "repository": "https://github.com/sharvilk/agents",
+      "homepage": "https://github.com/sharvilk/agents",
+      "keywords": [
+        "away",
+        "autonomy",
+        "status",
+        "session"
+      ],
+      "dependencies": [
+        "todo-sync"
+      ]
+    },
+    {
+      "name": "crossfire",
+      "source": "./skills/crossfire",
+      "skills": ".",
+      "description": "Reviews a plan, design doc, pull request or open decision before you build it, with independent read-only reviewers, a verifier for every blocker, and a fixed gate.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Sharvil Kadam",
+        "url": "https://github.com/sharvilk"
+      },
+      "license": "Apache-2.0",
+      "repository": "https://github.com/sharvilk/agents",
+      "homepage": "https://github.com/sharvilk/agents",
+      "keywords": [
+        "review",
+        "design-review",
+        "planning",
+        "subagents",
+        "decisions"
+      ]
+    }
+  ]
+}
