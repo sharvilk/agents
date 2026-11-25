@@ -44,7 +44,9 @@ message`. Anything else is the user, and the first thing done for it is to write
    with the reason is class B. Then resolve the thread. A PR is not "merge-ready" while a thread is open. A reply in
    the user's name outside its own PRs' review threads (an issue, someone else's PR) is class C: draft it, queue it.
    When the user merges a PR whose body lists decisions, mark those entries `accepted (merged <date>)`. When a PR it
-   made is merged, list the branch and worktree clean-up for the user, with the exact commands; never run it.
+   made is merged or closed, clean up: remove its worktree and delete its branch, locally and on GitHub, once the
+   worktree has nothing uncommitted and nothing unpushed. If something is, list the clean-up with the exact commands
+   for the user instead. The ledger branch stays while its PR is open.
 7. **Roadmap changed?** Re-read the roadmap from the repo and compare its commit with the one recorded. If anyone
    changed it, say what changed, re-plan before picking, and record the new commit.
 8. **Pick** the next item:

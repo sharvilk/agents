@@ -112,7 +112,7 @@ writing it is refused, say so in one line and continue single-session: no claim,
 ```text
 On-loop armed.
 Works: <items> of <roadmap>, one step at a time, on <branch convention>-loop branches.
-Yours: it never merges, publishes, deletes or deploys; those stay yours.
+Yours: it never merges, publishes or deploys, and deletes nothing but the worktrees and branches of its own merged or closed PRs; those stay yours.
 Decisions: logged in <ledger place> for your review.
 Limits: <each limit with its value>; renew on day 5 or 6.
 Ticks: fire only while Claude Code is running and idle (a closed app, an exited session or a sleeping machine means

@@ -3,7 +3,7 @@
 A Claude Code skill for the hours you are around but busy. It keeps working your project's roadmap, one item after
 another, in a session that stays open: it decides the small and reversible choices itself, builds on its own
 branches, and writes every decision into a log with a diagram, a worked example and the exact undo, so that you can
-keep, change or veto each one later. It never merges, publishes, deletes or deploys, so your merge is the last gate
+keep, change or veto each one later. It never merges, publishes or deploys, and deletes only the worktrees and branches of its own merged or closed PRs, so your merge is the last gate
 on every decision. No ordinary message stops it: "stop the loop" ends it, "pause the loop" pauses it, and anything
 else, even a message with the word "stop" in it, is answered while the loop carries on.
 
@@ -73,8 +73,8 @@ An example of each message is under [Examples](#examples).
 | **Resume block** | The "Resume here" block that `checkpoint` writes into the todo list before a restart or a quit; it says what to pick up next. |
 | **Claim** | A small file that says which session holds the loop for a repo, so two loops never share one. |
 | **Posture** | How loud a tick is, chosen by how recently you typed: PRESENT, NEARBY or AWAY ([How loud it is](#how-loud-it-is)). |
-| **Never list** | The actions the loop never takes: merge, delete, publish, deploy, spend and the rest of class D. |
-| **Wind down** | The orderly stop: delete the jobs, stop its own processes, write a final report, list the clean-up for you. |
+| **Never list** | The actions the loop never takes: merge, publish, deploy, spend, any delete beyond the clean-up of its own merged or closed PRs, and the rest of class D. |
+| **Wind down** | The orderly stop: delete the jobs, stop its own processes, write a final report, list the clean-up of open branches for you. |
 | **QUIET, PARK, STOP** | What the loop does at a limit: stop starting new items; set one item aside; wind down ([Limits and when it stops](#limits-and-when-it-stops)). |
 
 ## Table of contents
@@ -128,7 +128,7 @@ The big shift is when it checks with you:
    review after (the on-loop)
         fork ──► decide ──► build on a branch ──► log ──► you review ──► keep / change / veto
    never (both)
-        merge · delete · publish · deploy · spend · settings · push to the default branch
+        merge · delete (but its own merged/closed PRs) · publish · deploy · spend · settings · push to the default branch
 
    The fence that makes "review after" safe: nothing the loop does leaves a branch it created or an
    open pull request without you. Your merge is the last gate on every decision.
@@ -147,7 +147,7 @@ The big shift is when it checks with you:
 | Review | one summary on your return | a digest in batches, a verdict per decision, and a defined action for each verdict |
 | Length | hours; re-arms itself past the job's expiry | a charter of 7 days; ends unless you renew it |
 | Stops on | the first message, or the end time | the limits under [Limits and when it stops](#limits-and-when-it-stops), or the words "stop the loop" |
-| Stays yours | merges, deletes, production writes, settings, big decisions | the same, plus publishing, spending, default branches and the loop's own limits |
+| Stays yours | merges, other deletes, production writes, settings, big decisions | the same, plus publishing, spending, default branches and the loop's own limits |
 
 ### When you say you're leaving
 
@@ -202,7 +202,7 @@ roadmap commit read: 4be21a0 · claim: held
 ```
 On-loop armed.
 Works: R1 to R6 of docs/roadmap.md, one step at a time, on feature/*-loop branches.
-Yours: it never merges, publishes, deletes or deploys; those stay yours.
+Yours: it never merges, publishes or deploys, and deletes nothing but the worktrees and branches of its own merged or closed PRs; those stay yours.
 Decisions: logged in docs/decisions/ for your review.
 Limits: 7 days (renew on day 5 or 6), quiet after 24 h of silence, stop after 72 h, and the
 bounds in the charter.
@@ -260,7 +260,7 @@ you:  stop the loop
 loop: jobs deleted (CronList shows none); strays: none; PRs re-checked. Final report ... 5 decisions
       waiting for review, 2 PRs waiting for your merge. Marker ENDED; open items are in the normal
       list.
-      Clean-up for you to run (nothing was deleted):
+      Clean-up for you to run (open branches; merged and closed ones were already removed):
         git worktree remove ../export-v2-loop
         git branch -d feature/export-v2-loop
 ```
@@ -335,7 +335,7 @@ the skill again.
  WIND DOWN   delete every recorded job ► CronList shows none ► marker ENDED (or PAUSED) ► stop own
              background processes by PID ► re-check PRs and CI ► final report + what is waiting
              for review ► carry open items into the normal list ► release the claim ► list the
-             clean-up for you; delete nothing
+             clean-up of open branches for you
 ```
 
 ### Starting it: four gates
@@ -528,7 +528,7 @@ The five big kinds are architecture, security boundaries, public contracts, scop
 | **A: decide, log** | the name of an internal function, file or test · where a new test goes and what shape it has · the order of two steps inside an item · the wording of an error message · which existing helper to reuse · fixing a check its own change caused · the severity of a review finding · a comment or README paragraph the item requires · bumping a timeout in its own test |
 | **B: decide, flag** | an internal data structure or module boundary the roadmap leaves open · which of two algorithms, when both pass the check · how an edge case behaves when the spec is silent · the layout of a new config section nothing outside the repo reads · **changing what an existing test expects, with the reason** · splitting one item into two PRs · declining a reviewer's suggestion, with the reason · skipping an item because it is blocked · **adding a dependency, inside the guardrails below** |
 | **C: queue, prepared** | anything in a public contract: a CLI flag, an exported API, a file format, a schema · a new service, queue, database or table, or a major version of a dependency · anything touching auth, secrets, permissions or what data leaves the machine · changing the scope, order or check of a roadmap item, or adding one · a migration of stored data · changing CI, release or build configuration · a licence question · a reply in your name outside its own PRs' review threads (an issue, someone else's PR) · anything two project documents disagree about |
-| **D: never** | merging or approving a PR · pushing to the default or a release branch · force-pushing · `--no-verify` · any delete (files outside its change, branches, worktrees, stashes, resources, data), **its own branches and worktrees included**, at wind-down, on a veto and after a merge: it lists the clean-up with the exact commands for you · enabling auto-merge or a merge queue · closing or reopening PRs or issues · changing repository settings or memory · publishing, releasing, tagging, deploying · spending money · writes to production · changing settings, `CLAUDE.md`, `AGENTS.md`, hooks or this skill's files · changing its own charter or limits · network, VPN or system settings · touching another session's worktree, branch or processes · printing secrets · deleting, skipping or weakening a test to make a check pass · working around a refused permission |
+| **D: never** | merging or approving a PR · pushing to the default or a release branch · force-pushing · `--no-verify` · any delete other than the clean-up of its own merged or closed PRs (files outside its change, other branches and worktrees, stashes, resources, data): its open branches at wind-down, a veto and the ledger branch while its PR is open are listed with the exact commands for you · enabling auto-merge or a merge queue · closing or reopening PRs or issues · changing repository settings or memory · publishing, releasing, tagging, deploying · spending money · writes to production · changing settings, `CLAUDE.md`, `AGENTS.md`, hooks or this skill's files · changing its own charter or limits · network, VPN or system settings · touching another session's worktree, branch or processes · printing secrets · deleting, skipping or weakening a test to make a check pass · working around a refused permission |
 
 - **Class C** includes everything short of deciding: the options, what each costs, a recommendation, and what it
   would do next under each. It may build **one clearly labelled throwaway spike branch** per queued item (never
@@ -546,8 +546,11 @@ The five big kinds are architecture, security boundaries, public contracts, scop
   reason and the alternative it rejected. Any guardrail that fails makes it class C.
 - **A changed test expectation** is a flagged decision with the reason. Deleting, skipping or loosening a test is
   never allowed.
-- **Nothing is ever deleted by the loop.** A veto reverts with new commits; at wind-down and after one of its PRs
-  merges it lists the branches and worktrees to remove, with the exact commands, and you run them. Only its own
+- **The loop deletes only what its own merged or closed PRs left behind.** Once a PR it opened merges or closes, it
+  removes that PR's worktree and deletes its branch, locally and on GitHub, after checking the worktree has nothing
+  uncommitted and nothing unpushed; if something is, it lists the clean-up with the exact commands and you run it.
+  A veto reverts with new commits; at wind-down, open branches and the ledger branch (while its PR is open) are
+  listed for you to remove. Other people's branches, stashes and everything else stay yours. Only its own
   scratch files in the session scratchpad, and the dependency folders and build output it produced in its own
   worktree, are its to remove.
 - **Autonomy** is one setting: `minor` (queue class B like C; first runs), `standard` (the default), or
