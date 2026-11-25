@@ -2,17 +2,9 @@
 
 Pasted in full into the brief of the reviewer that holds this seat.
 
-## Table of contents
-
-- [Seat this lens when](#seat-this-lens-when)
-- [Check](#check)
-- [Typical blocking-grade findings](#typical-blocking-grade-findings)
-- [Usually not blocking](#usually-not-blocking)
-- [Where to look](#where-to-look)
-
 ## Seat this lens when
 
-the target adds or moves a component, a module, a service, a table, a public interface, or a dependency between parts of the system; seated by default at standard and deep depth unless the change is confined to one existing function.
+The target adds or moves a component, a module, a service, a table, a public interface, or a dependency between parts of the system; seated by default at standard and deep depth unless the change is confined to one existing function.
 
 ## Check
 

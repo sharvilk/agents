@@ -2,17 +2,9 @@
 
 Pasted in full into the brief of the reviewer that holds this seat.
 
-## Table of contents
-
-- [Seat this lens when](#seat-this-lens-when)
-- [Check](#check)
-- [Typical blocking-grade findings](#typical-blocking-grade-findings)
-- [Usually not blocking](#usually-not-blocking)
-- [Where to look](#where-to-look)
-
 ## Seat this lens when
 
-the target adds a job, a queue, a migration, a deploy step, an external call, a retry, a cache, or anything that runs without a person watching.
+The target adds a job, a queue, a migration, a deploy step, an external call, a retry, a cache, or anything that runs without a person watching.
 
 ## Check
 

@@ -1,7 +1,7 @@
 # Example: crossfire reviewing its own README
 
-crossfire run on this skill's own [README](../../README.md), as it stood midway through writing it, to see whether
-the panel would catch problems in the skill's own documentation. It is not an eval case: there is no answer key.
+A crossfire run on this skill's own [README](../../README.md), taken while the README was still a draft, to see
+whether the panel would catch problems in the skill's documentation. It is not an eval case: there is no answer key.
 
 ## Table of contents
 
@@ -12,9 +12,9 @@ the panel would catch problems in the skill's own documentation. It is not an ev
 
 ## The run
 
-`/crossfire README.md`, on 2026-11-12, with the second version of the skill. It ran in a temporary copy of a
-repository with its own written rules for skills (not published here), so the panel had those rules to hold the
-README to.
+`/crossfire README.md`, on 2026-11-12, with the [second version](../README.md#versions) of the skill. It ran in a
+temporary copy of a repository with its own written rules for skills (not published here), so the panel had those
+rules to hold the README to.
 
 ```
  depth: STANDARD

@@ -1,12 +1,14 @@
 # The ledger entry
 
 The decision ledger is a committed Markdown file, one per day, entries appended, on the loop's log branch. The shape
-is the well-known decision-record one (context, options, outcome, consequences; MADR is the common template) with
+is the well-known decision-record one (context, options, outcome, consequences; MADR, Markdown Architectural Decision Records, is the common template) with
 four additions this loop needs: a diagram, a worked example, the exact undo, and what depends on it.
 
 Three parts change after writing: the heading line (the status), the **Built on it since** line and the **Review**
 line. Counting is a `grep` of the heading (`grep -c '· pending$'`), never the agent's memory. Ids continue across
-charters and renewals (`D-001`, `D-002`, ...; the next is the highest in the ledger plus one); class C items are `C-1`, `C-2`, ... and live in the todo file's "Waiting for you", with a link to their write-up.
+charters and renewals (`D-001`, `D-002`, ...; the next is the highest in the ledger plus one, found by a `grep`,
+never from memory); class C items are `C-1`, `C-2`, ... and live in the todo file's "Waiting for you", with a link
+to their write-up.
 
 ## The heading line, exactly
 
@@ -48,7 +50,8 @@ trailing text.
 
 ## A class A entry (short)
 
-The heading, Decision, Why it came up, Depends on and Undo lines (a cascade reads "Depends on"):
+A class A entry has these lines: the heading, Decision, Why it came up, Depends on and Undo. (A veto reads the
+"Depends on" lines to find what to revert with it.)
 
 ````md
 ## D-015 · 2026-11-24T14:31+0000 · A · pending
@@ -62,7 +65,8 @@ The heading, Decision, Why it came up, Depends on and Undo lines (a cascade read
 ## What the Review line becomes
 
 The user's verdict, the date and their words, and the heading changes to one of: `accepted`, `accepted (merged
-<date>)`, `changed → D-031`, `vetoed`, `vetoed (merged): follow-up <link>`, `reverted (with D-014)` for an entry reverted in another's cascade, `discussing`. A change is a **new**
+<date>)`, `changed → D-031`, `vetoed`, `vetoed (merged): follow-up <link>`, `reverted (with D-014)` for an entry reverted in another's cascade,
+`discussing`. A change is a **new**
 entry (`D-031 · B · pending`, with "Supersedes D-014" under the Decision) made on the same branch as new commits.
 
 ## A dependency entry

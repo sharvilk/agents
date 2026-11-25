@@ -7,8 +7,9 @@ description: Keep a session working a project's roadmap continuously while the u
 
 An always-on loop for a session. The user has a roadmap; the loop keeps working it item after item, decides the
 small and reversible choices itself, and writes every decision down so the user can review it later and keep,
-change or veto it. A message from the user never stops it. Nothing it does leaves a branch it created or an open
-pull request without the user: the user's merge is the last gate on every decision.
+change or veto it. No ordinary message stops it: "stop the loop" ends it and "pause the loop" pauses it; anything
+else is answered and the loop carries on. Nothing it does leaves the branches it created or its open pull
+requests until the user merges: the user's merge is the last gate on every decision.
 
 **It needs the `todo-sync` skill.** The charter, the loop state, the roadmap view, the index of decisions and the
 queue of what waits for the user live in the session's todo-sync list, because ticks start cold, the conversation
@@ -32,23 +33,26 @@ Answers: "stop the loop", "pause the loop", "renew the loop", "review", "status"
 Owns: "On-loop charter", "On-loop state", "Roadmap view", "Decisions to review", "Waiting for you"
 ```
 
-- **ARMED**: a job exists. **PAUSED**: no job; the charter stays and its clock keeps running. Its form is
+- **ARMED**: a job exists.
+- **PAUSED**: no job; the charter stays and its clock keeps running. Its form is
   `## Loop state: PAUSED — <owner> — charter valid until <date> — reason checkpoint|user`: `user` for "pause the
   loop", `checkpoint` when `checkpoint` deleted the job for a restart or a quit. `Answers:` lists only "resume the
   loop", "resume", "stop the loop", "renew the loop", "review", "status", "report", "I'm taking <item>", and
-  "keep/veto/change <ids>" while any ledger entry is pending. **ENDED**: no job; the heading says why, after a final
-  dash; `Answers:` is only "review" and "keep/veto/change <ids>" while entries are pending. A todo list with no such
-  heading has no loop. The heading's state wins over a stale `Answers:` line. Under PAUSED, an away phrase gets one
-  line: the loop is paused; "resume the loop" or "stop the loop".
+  "keep/veto/change <ids>" while any ledger entry is pending. Under PAUSED, an away phrase gets one line: the loop is
+  paused; "resume the loop" or "stop the loop".
+- **ENDED**: no job; the heading says why, after a final dash; `Answers:` is only "review" and
+  "keep/veto/change <ids>" while entries are pending.
+- A todo list with no such heading has no loop. The heading's state wins over a stale
+  `Answers:` line.
 - **Arm order.** `CronCreate` first (search for it with ToolSearch before concluding it is missing). Only on
   success write ARMED with the job id, then the claim. On failure write nothing, or ENDED with the reason, and tell
   the user. Never write ARMED for a job that does not exist.
 - **The claim** is `on-loop-claim.json` in the repo's shared git folder (session id, charter end date, job id, start
-  time, last beat). **Every write reads it first, writes a temp file beside it and renames that into
-  place; never open it for writing in place.** To **release** it is to rewrite the file as `released <time>`; gate 4 treats a released or expired
-  claim as free, and nothing deletes it. Renew, resume and every re-arm update its charter end date, job id and
-  session id. If writing it is refused, say so in one line and continue single-session: no claim, and gate 4 is not
-  checked.
+  time, last beat). **Every write reads it first, writes a temp file beside it and renames that into place; never
+  open it for writing in place.** To **release** it is to rewrite the file as
+  `released <time>`; gate 4 treats a released or expired claim
+  as free, and nothing deletes it. Renew, resume and every re-arm update its charter end date, job id and session id.
+  If writing it is refused, say so in one line and continue single-session: no claim, and gate 4 is not checked.
 - **Confirm the job.** On any user message routed to the loop, and at each tick's step 0, run `CronList`. Job
   missing while the marker says ARMED: say so in one line and offer to re-arm; never delete, re-create or re-arm
   silently, and never after the user stopped it. Limit: a job that disappears is noticed only at the next tick it
@@ -59,6 +63,8 @@ Owns: "On-loop charter", "On-loop state", "Roadmap view", "Decisions to review",
   `checkpoint` changes the state, this skill rewrites `Answers:` on resume; checkpoint never does.
 
 ## 2. The never list (class D)
+
+The classes A to D are defined in section 4.
 
 Not with a blanket go, not when it would unblock everything. Queue the exact words the user would say ("merge 37"),
 move to other work, and never look for another route. A refused permission is a queue item too.
@@ -97,7 +103,7 @@ subagent, runs the item's check itself and marks each PR and entry "checked by t
 | "keep 14, veto 16, change 17: ..." | apply the verdicts, in any state, once the user says they have read the digest |
 | "I'm taking R4" | release the item at once: push what exists, record where it stopped, leave the branch |
 | "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away" (any form) | ARMED: stays the on-loop; sets an away mark; away-loop does not arm. PAUSED: one line (paused; "resume the loop" or "stop the loop"), no mark |
-| "I'm back", "good morning", "back online", "continue", "carry on", "keep going", bare "resume" | with a "Resume here" block for this session, `checkpoint` answers first and re-arms only a marker it paused (`reason checkpoint`) through this skill's "resume the loop" step; otherwise a bare "resume" is "resume the loop"; with the marker ARMED, "I'm back", "good morning" and "back online" give a short status and offers the review digest (digest first; verdicts after the user says they have read it), and the rest get one line: already working |
+| "I'm back", "good morning", "back online", "continue", "carry on", "keep going", bare "resume" | with a "Resume here" block for this session, `checkpoint` answers first and re-arms only a marker it paused (`reason checkpoint`) through this skill's "resume the loop" step; otherwise a bare "resume" is "resume the loop"; with the marker ARMED, "I'm back", "good morning" and "back online" give a short status and offer the review digest (digest first; verdicts after the user says they have read it), and the rest get one line: already working |
 | "stop ..." (anything else) | not a stop: answer it. Only "stop the loop" stops it. "stop everything safely" is `checkpoint`'s |
 | "wrap up", "close out" | `todo-sync` closes its part and never deletes this list or the loop's blocks; the loop keeps running |
 | a restart or a quit ("before I restart", "before I quit") | `checkpoint` deletes the job first (marker PAUSED, `reason checkpoint`) and puts "resume the loop" first in the resume block. A break leaves the job and marker alone. A `reason user` pause gets no re-arm item |
@@ -145,7 +151,8 @@ user.
 
 0. **Marker and job.** Read the marker. ENDED, PAUSED or none: delete this job, one line, stop. ARMED: `CronList`;
    job missing: one line, offer to re-arm, stop.
-1. **Stop rules and gap.** Limits and silence; if more than two beats passed since `last beat`, say so once. Load or disk over its line: bookkeeping only, no heavy step.
+1. **Stop rules and gap.** Limits and silence; if more than two beats passed since `last beat`, say so once.
+   Load or disk over its line: bookkeeping only, no heavy step.
 2. **Job age and renewal.** Re-arm after 6 days; ask for renewal on charter days 5 and 6.
 3. **Yield.** A request of the user's still in progress: end the tick with no output.
 4. **Health.** Disk, load, memory, other sessions, the user's branches and worktrees.

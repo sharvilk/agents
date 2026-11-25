@@ -7,12 +7,14 @@ into the state line from `date`; it never guesses presence from the clock.
 
 ```
  last message from the user      posture   a tick replies with
- under 15 minutes ago            PRESENT   one gauge line
+ under 15 minutes ago            PRESENT   one gauge line (defined just below)
  15 minutes to 2 hours ago       NEARBY    the status table, new information only
- over 2 hours ago                AWAY      the table; the full report every 2 hours and at each milestone
+ over 2 hours ago                AWAY      the table; the full report every 2 hours
+                                            and at each milestone
  an away mark ("I'm going to     AWAY      the same, until the user's next message after the
  sleep", "I'm stepping away")               one that set it clears the mark
- any time, on request            -         "status": the table · "report": the full report · "review": the digest
+ any time, on request            -         "status": the table · "report": the full report
+                                            "review": the digest
 ```
 
 The gauge line is the smallest update and the first line of every larger one:

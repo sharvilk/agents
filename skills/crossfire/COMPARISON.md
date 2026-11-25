@@ -1,7 +1,7 @@
 # How crossfire compares to what's out there
 
-> A design review that runs before you build: independent reviewers, every blocker reproduced by a skeptic,
-> and a decision with a checklist you re-run, not another wall of AI comments.
+> A design review that runs before you build: independent reviewers, every blocker reproduced by a verifier,
+> and a decision with a checklist you re-run, not a long list of AI comments.
 
 This page puts crossfire next to the tools people already use for AI review: where each one sits in the work, how
 each one is built, what they share, where crossfire differs, and where it is weaker. The examples come from real
@@ -13,7 +13,7 @@ or documentation, read at the commits named under [Sources](#sources).
 - [Where each tool sits](#where-each-tool-sits)
 - [Four shapes of AI review](#four-shapes-of-ai-review)
 - [Side by side](#side-by-side)
-- [The honest reading](#the-honest-reading)
+- [What is not unique, and what is](#what-is-not-unique-and-what-is)
 - [The tools, one by one](#the-tools-one-by-one)
 - [Examples from real runs](#examples-from-real-runs)
 - [Where crossfire is weaker](#where-crossfire-is-weaker)
@@ -48,12 +48,14 @@ stage, and it comes as part of a larger framework.
                       (PAL, LLM Council: diverse opinions; nothing has to be proven)
 
  C  DIFF REVIEW       diff ──▶ [narrow reviewers] ──▶ [check each finding] ──▶ pull-request comments
-    WITH A CHECK      (Anthropic's code-review: checked findings, but after the code exists, ending in comments)
+    WITH A CHECK      (Anthropic's code-review: checked findings, but after the code exists,
+                      ending in comments)
 
- D  CROSSFIRE         plan ──▶ frame ──▶ [lenses + advocate + pre-mortem, blind] ──▶ anonymous cross-examination
-                           ──▶ [a skeptic per blocker] ──▶ chair ──▶ FIXED GATE ──▶ conditions
-                                                                          │
-                                         next round re-checks each by id ◀┘
+ D  CROSSFIRE         plan ──▶ frame ──▶ [lenses + advocate + pre-mortem, blind]
+                           ──▶ anonymous cross-examination ──▶ [a verifier per blocker]
+                           ──▶ chair ──▶ FIXED GATE ──▶ conditions
+                                                              │
+                                  next round re-checks each by id ◀┘
 ```
 
 Each shape answers a different question:
@@ -75,7 +77,7 @@ Each shape answers a different question:
 | Ends in a decision made by a fixed rule | ✓ (five outcomes) | ✓ | ✗ (comments) | ✗ (a summary) | ✗ (an answer) | ✗ |
 | Stops and asks when a fact is missing | ✓ (STOP) | ✓ (its "clarify" stop) | ✗ | ✗ (a model can ask for files; the tool does not act on it) | ✗ | ✗ |
 | Later rounds re-check conditions by id | ✓ | ~ (a fresh full review each round, tracking recurring themes) | ✗ | ✗ | ✗ | ✗ |
-| Panel sized to the risk | ✓ (up to 3, 5 or 7 seats) | ~ (runs only on project-sized designs; then six reviewers, Opus by default, every round) | ~ (cheap checks first) | you choose the models | fixed list | — |
+| Panel sized to the risk | ✓ (up to 3, 5 or 7 seats) | ~ (runs only on project-sized designs; then six reviewers, Opus by default, every round) | ~ (cheap checks first) | ~ (you choose the models) | ✗ (fixed list) | — |
 | Records its own first view, to show what the panel changed | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
 | Ships end-to-end evals with answer keys and measured cost | ✓ | ~ (tests whether reviewers apply their rubric) | ✗ | ✗ | ✗ | ✗ |
 | Several model families | ✗ (Claude only) | ~ (the framework can use other models' CLIs; not shown for this gate) | ✗ | ✓ | ✓ | ✗ |
@@ -84,22 +86,23 @@ Each shape answers a different question:
 The table compares the review step only. Several of these tools do far more around it: metaswarm is a whole
 development workflow, and PAL is a toolbox of which consensus is one tool.
 
-## The honest reading
+## What is not unique, and what is
 
 No single feature in that table is unique to crossfire:
 - Anthropic's code-review plugin also has a separate agent check each bug finding, and drops what it cannot
   confirm. It does so on pull requests, after the code exists.
 - metaswarm's design-review gate also reviews designs before code, blocks only on findings that name what they
   protect, and stops to ask when it needs the owner. For project-sized work it runs six reviewers (on the strongest
-  model by default) every round, with no separate skeptic, inside its own framework.
+  model by default) every round, with no separate verifier, inside its own framework.
 - LLM Council also anonymises reviewers before they judge each other, but ranks whole answers rather than testing
   individual findings.
 
 What is new is the combination, aimed at one moment:
 
 ```
-   BEFORE CODE  +  EVIDENCE A SKEPTIC REPRODUCES  +  A DECISION A RULE MAKES  +  A LOOP THAT CLOSES BY ID
-        +  A PANEL SIZED TO THE RISK  +  A RECORD OF WHAT THE PANEL CHANGED  +  EVALS YOU CAN RE-RUN
+   BEFORE CODE  +  EVIDENCE A VERIFIER REPRODUCES  +  A DECISION A RULE MAKES
+        +  A LOOP THAT CLOSES BY ID  +  A PANEL SIZED TO THE RISK
+        +  A RECORD OF WHAT THE PANEL CHANGED  +  EVALS YOU CAN RE-RUN
 ```
 
 ## The tools, one by one
@@ -140,7 +143,8 @@ agent writes the final synthesis.
 ### metaswarm's design-review gate
 
 Part of metaswarm, a larger development framework. When a project-sized design document is committed, six
-reviewers run in parallel, on the strongest model by default (smaller work skips the gate): product, architect, designer, security, UX and CTO. A finding
+reviewers run in parallel, on the strongest model by default: product, architect, designer, security, UX and
+CTO. Smaller work skips the gate. A finding
 blocks only when it is critical or major and names what it protects. An ordered rule decides each round: pass,
 stop and ask the owner, escalate, or fix and review again, up to ten rounds. Escalation never approves.
 
@@ -195,7 +199,7 @@ is a list of comments, with no evidence required, no check on each claim, and no
 The first three come from crossfire runs on small made-up projects, each described in full in
 [examples/](examples/README.md); the fourth puts their figures side by side.
 
-### 1. Evidence, and a skeptic who also cuts
+### 1. Evidence, and a verifier who also cuts
 
 [Password reset](examples/password-reset/README.md), deep depth: a plan for "forgot your password", in a repo
 whose access log records full URLs.
@@ -203,16 +207,16 @@ whose access log records full URLs.
 ```
  six of seven reviewers, each on its own:  "the reset token lands in the access log"
         │
- skeptic (Opus) reproduces it:  plan:24 puts the token in the URL ─┐
+ verifier (Opus) reproduces it: plan:24 puts the token in the URL ─┐
                                 logging.js:7 logs req.originalUrl ─┴─▶ VERIFIED critical
         │
- C1 | critical | blocks | check: a test sends GET /reset?token=X and asserts X is not in the log line
+ C1 | critical | blocks | check: a test sends GET /reset?token=X, asserts X is not in the log
 ```
 
-The skeptic also cuts, and here it cut too far. Plaintext token storage was one of the planted defects and should
-have blocked. A reliability reviewer raised it, and the skeptic rated it minor, since a database leak is not normal
-use, so it became a follow-up. crossfire's own record counts this as the run's one miss, and its security lens was
-changed afterwards to treat stored credentials as blocking (not yet re-run). What the design guarantees is that
+The verifier also cuts, and here it cut too far. Plaintext token storage was one of the planted defects and should
+have blocked. A reliability reviewer raised it, and the verifier rated it minor, since a database leak is not normal
+use, so it became a follow-up. crossfire's own record counts this as the run's one miss. The security lens now
+treats stored credentials as blocking; that change has not been tested yet. What the design guarantees is that
 every blocking claim is either reproduced or loses its block, with the reason written down, so a wrong call like
 this one is visible and can be corrected.
 
@@ -231,8 +235,8 @@ should be teal "as the other help pages already do".
  round 2   ──▶ C1 "fixed in round 2" (banner.js:7, palette.json:3) ──▶ PASS
 ```
 
-crossfire turned the gap into two questions, and the next round closed them by id. We expect a reviewer that does
-not stop to ask would have trusted the plan's claim, but no single-reviewer run was made to compare.
+crossfire turned the gap into two questions, and the next round closed them by id. A reviewer that does not stop
+to ask would probably have trusted the plan's claim, but no single-reviewer run was made to compare.
 
 ### 3. It changes the decision, and shows that it did
 
@@ -240,9 +244,10 @@ not stop to ask would have trusted the plan's claim, but no single-reviewer run 
 cron to a job queue, and how?
 
 ```
- first view, told before any reviewer started:  "lean to option 3: one job per workspace"
- panel, with evidence:                           "option 2: a redelivered fan-out job re-queues every workspace,
-                                                  so option 3 needs the same sent-record and costs more"
+ first view, told before any reviewer started: "lean to option 3: one job per workspace"
+ panel, with evidence:                         "option 2: a redelivered fan-out job re-queues every
+                                                workspace, so option 3 needs the same sent-record
+                                                and costs more"
 
  option 2 as written, one night:
  02:00  worker A runs the report ─────────────────────── ~02:12
@@ -256,19 +261,20 @@ changed. Here the panel changed the recommendation, with reasons, instead of res
 ### 4. Sized to the risk
 
 ```
- copy change   QUICK   pre-mortem + 2 lenses, no cross-examination   4–9 agent calls   $3–4    8–10 min
- auth change   DEEP    7 reviewers, every one cross-examines         31 agent calls    $16.55  33 min
+ copy change   QUICK   pre-mortem + 2 lenses, no cross-examination  4–9 agent calls  $3–4   8–10 min
+ auth change   DEEP    7 reviewers, every one cross-examines        31 agent calls   $16.55 33 min
 ```
 
-The deep run predates the current verifier cap (8 at deep depth); a deep run under the cap has not been measured.
+The deep run used 16 verifiers; the skill now caps them at 8 at deep depth, and a deep run under that cap has not
+been measured.
 Each figure is one sample per case, not an average.
 
 ## Where crossfire is weaker
 
 - **One model family.** Every agent is a Claude model, and model errors correlate. PAL and LLM Council draw on
   several families.
-- **Cost and time.** $3–17 and 8–33 minutes a run in the recorded examples, 86–97% of it on Opus (86%, 96% and 95% in the published records). A one-agent review
-  is expected to cost much less, though that was not measured here.
+- **Cost and time.** $3–17 and 8–33 minutes a run in the recorded examples, 86–97% of it on Opus (86%, 96% and 95% in the
+  published records; the rest is from the run files, which are not published). A one-agent review is expected to cost much less, though that was not measured here.
 - **Not for line-level code review.** Once code exists, a diff reviewer such as Anthropic's code-review plugin is the
   right tool.
 - **Thin evidence so far.** Three made-up cases and a self-review, one sample per case, all on earlier versions of
@@ -280,10 +286,12 @@ Each figure is one sample per case, not an average.
 ## Using them together
 
 ```
- plan ──▶ crossfire ──▶ build ──▶ pull request ──▶ Anthropic's code-review / pr-review-toolkit ──▶ merge
-           (should we build this, and what must change first?)        (is this diff correct?)
+ plan ──▶ crossfire ──▶ build ──▶ pull request ──▶ Anthropic's code-review ──▶ merge
+           (should we build this,                    / pr-review-toolkit
+            and what must change first?)             (is this diff correct?)
 
- a decision where model diversity matters more than repository evidence ──▶ PAL consensus, as a second opinion
+ a decision where model diversity matters more than repository evidence
+   ──▶ PAL consensus, as a second opinion
 ```
 
 crossfire does not replace a diff reviewer. It moves the expensive mistakes earlier, so the diff reviewer sees fewer

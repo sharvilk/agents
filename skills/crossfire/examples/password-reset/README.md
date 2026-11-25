@@ -42,8 +42,8 @@ block:
 
 ## The run
 
-`/crossfire docs/plans/password-reset.md`, depth left to the picker, on 2026-11-12, with the first version of the
-skill.
+`/crossfire docs/plans/password-reset.md`, depth left to the picker, on 2026-11-12, with the
+[first version](../README.md#versions) of the skill.
 
 ```
  depth: DEEP (the plan adds authentication: reset tokens, signing users in)
@@ -85,8 +85,8 @@ The three questions it asked:
 3. Is "this email has an account" already public (for example, at sign-up)? If so, C4 becomes "won't do".
 
 **What the panel changed.** The orchestrator's first view, given before any reviewer started, was "do not build;
-expect REVISE", for the token design, the disclosure, the `DELETE` and sessions surviving a reset. The core held.
-The panel:
+expect REVISE", for the token design, the disclosure, the `DELETE` and sessions surviving a reset. The main conclusion (do not build as
+written) held. The panel:
 - downgraded plaintext storage to a follow-up;
 - corrected "never expires" (rows go after 30 days; the defect is reuse after the password changes);
 - showed that sessions surviving a reset do not break a done item, because login checks the current password;

@@ -20,8 +20,8 @@ Pasted into both stance briefs, word for word:
 
 ## Advocate
 
-Seated at standard and deep depth. In whether-mode it argues for the option the frame lists as leading, or for the
-change over doing nothing when no option leads.
+Seated at standard and deep depth. In whether-mode it argues for the option the frame marks as leading, or for the
+change over "keep things as they are" when no option is marked.
 
 Brief text:
 

@@ -67,7 +67,7 @@ Written by the orchestrator, beside the target: `<target-name>.crossfire.md` (a 
 
 ## Verdict
 
-**Gate: <INCOMPLETE | STOP | PASS | ESCALATE | REVISE>.** <one sentence: why, naming the condition ids>
+**Gate: <PASS | REVISE | STOP | ESCALATE | INCOMPLETE>.** <one sentence: why, naming the condition ids>
 
 <the chair's recommendation, two or three sentences; in whether-mode, the option it recommends and why>
 
@@ -92,7 +92,7 @@ Written by the orchestrator, beside the target: `<target-name>.crossfire.md` (a 
 
 ## What the panel changed
 
-Before the panel: <the sealed first view, one line>. After: <what changed, or "nothing: the panel confirmed it">.
+Before the panel: <the first view, one line>. After: <what changed, or "nothing: the panel confirmed it">.
 
 ## Run
 

@@ -3,9 +3,17 @@ name: todo-sync
 description: Keep each session's TODO list complete and current in its own file — nothing leaves the list unless it is done or the user agreed to drop it. Use at the start of a session, after any compaction, before rewriting the list, when the user says "check the todos" / "did you lose anything" / "go back in your history", when your part of an initiative wraps up, when the user says "close this initiative", "we're done with <initiative>", "wrap up this initiative", "close out my todo list" or "clean up old todo lists", and before reporting work complete. A subagent keeps no list; it reports open items to its parent.
 ---
 
-# TODO sync
+# todo-sync
 
-**A todo list whose heading is `## Loop state: ARMED` or `## Loop state: PAUSED` is never deleted, in any session's file.** That holds for "wrap up", "close out", "close this initiative" and "clean up old todo lists" alike: show that heading and skip that list. Skipping applies to deletion only: for this session's own list, todo-sync still closes its own part. **If this session's own list has such a heading owned by another skill:** "wrap up" or "close out" closes your part as below but never deletes the list and never removes that skill's blocks (the heading, its `Answers:` and `Owns:` lines, and every section the `Owns:` line names). Reorganize-before-prune and recovery keep those blocks whole. The owning skill ends its loop and writes ENDED; only then may the list be closed out.
+**A todo list whose heading is `## Loop state: ARMED` or `## Loop state: PAUSED` is never deleted, in any session's file.**
+
+- That holds for "wrap up", "close out", "close this initiative" and "clean up old todo lists" alike: show that
+  heading and skip that list.
+- Skipping applies to deletion only: for this session's own list, todo-sync still closes its own part.
+- **If this session's own list has such a heading owned by another skill:** "wrap up" or "close out" closes your part
+  as below but never deletes the list and never removes that skill's blocks (the heading, its `Answers:` and `Owns:`
+  lines, and every section the `Owns:` line names). Reorganize-before-prune and recovery keep those blocks whole.
+- The owning skill ends its loop and writes ENDED; only then may the list be closed out.
 
 The list is a commitment, not a scratchpad. An item that disappears reads as "done", so nothing leaves
 the list without being confirmed.
@@ -33,16 +41,16 @@ Each top-level session keeps its own list, one file per session, in the list fol
 - When `CLAUDE_CONFIG_DIR` is set, the list folder is `$CLAUDE_CONFIG_DIR/todo-sync/` instead: it sits in the
   same config folder as the session's transcript. Find the absolute path once, with
   `echo "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todo-sync"`, and give the file tools that path.
-- `<session-id>` is this session's id: `${CLAUDE_SESSION_ID}`. If no UUID follows that colon, take the directory
+- `<session-id>` is this session's id: `${CLAUDE_SESSION_ID}`. If the value is empty or not a UUID, take the directory
   just above `scratchpad` in your scratchpad path, when the session has one; otherwise ask.
 - `<initiative>` is short `kebab-case`. Reuse the existing folder if there is one.
 - **A list started before the list folder existed stays where it is.** Earlier versions of this skill kept lists in
   `<config>/todos/<initiative>/<session-id>.md`, where `<config>` is `~/.claude` or `$CLAUDE_CONFIG_DIR`. If this
   session's list is there and not in the list folder, keep reading and writing it there until the session ends: don't
   move or copy it. New lists always go in the list folder. Never open, move or report other sessions' files in
-  `todos/` unless the user names one or asks to clean up old lists (below). Before you create a list, and again after each compaction, look for your own
-  in both places by its id, with your session id (above) in place of `<session-id>`. A subagent doesn't run this:
-  the id is its parent's.
+  `todos/` unless the user names one or asks to clean up old lists (below). Before you create a list, and again after each
+  compaction, look for your own in both places by its id. Put your session id (above) in place of `<session-id>` in
+  the command. A subagent doesn't run this: the id is its parent's.
 
   ```bash
   find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todo-sync" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todos" -mindepth 2 -maxdepth 2 -name '<session-id>.md' 2>/dev/null
@@ -117,8 +125,8 @@ dropped.
 
 ## Recovering a lost list
 
-Use every source you have; each holds what the others miss. Look in the session that wrote the list (after
-a new session, the earlier one). The transcript is
+Use every source you have; each holds what the others miss. Look in the transcript of the session that wrote the list. After a
+new session starts, that is the earlier session. The transcript is
 `<config>/projects/<project-folder>/<session-id>.jsonl`, where `<config>` is `~/.claude` or
 `$CLAUDE_CONFIG_DIR`, and `<project-folder>` is the working directory's path with every character other than
 letters and digits replaced by `-`. `ls <config>/projects/*/<session-id>.jsonl` finds it. Subagents' calls are in
@@ -127,8 +135,8 @@ letters and digits replaced by `-`. `ls <config>/projects/*/<session-id>.jsonl` 
 1. **The list's own edits in the transcript.** Every Write, Edit or Bash call that changed the file is
    still in the transcript, including the ones from before compaction. Take the `tool_use` blocks whose
    input contains the file's name, `<session-id>.md` (paths appear as `~/…`, `$HOME/…` or absolute), and
-   replay them in order: from the call that created the file, or, when you keep a backup, the calls after its
-   newest version, on top of that version.
+   replay them in order: from the call that created the file, or, when the config folder is backed up in git, the calls after its
+   newest backed-up version, on top of that version.
 
 2. **The todo tool's calls**, if the session had one. Count them first:
 
@@ -215,7 +223,7 @@ then does it count as moved.
 3. For each other list, show the user its open items and ask whether that session is still running: a running
    session keeps writing its list. Delete it only when the user confirms, and only once each of its open items is
    done, dropped with a reason, or moved somewhere the user names. A blanket yes ("all of them") is not enough:
-   show each list's open items first, and delete one list for each list the user confirms.
+   show each list's open items first, and delete only the lists the user confirms one by one.
 4. Remove each of the initiative's folders only once it is empty, with `rmdir`.
 
 Never delete a list because it looks old.
@@ -239,5 +247,5 @@ dropped with a reason, or moved somewhere the user names.
 - **A list untouched for a while can still belong to a session the user means to resume.** The user decides, never
   you.
 - **Never run the script on a schedule, and never delete on its output alone.**
-- **Its listing of the old `todos/` folder** is the one place the skill reports other sessions' files there, because
-  the user asked. It comes out together with the old-folder lookup.
+- **The listing covers the old `todos/` folder too.** This is the one place the skill reports other sessions' files
+  there, because the user asked.

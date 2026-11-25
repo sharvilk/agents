@@ -1,9 +1,9 @@
 # Parts shared with away-loop
 
-Origin: the `away-loop` skill. These blocks are copied from it, with the changes named below, so that the two skills
-behave alike where they should. **They exist twice.** When `away-loop` changes one of them, check this file in the
-same change, and the other way round. If the two ever drift a second time, that earns a check that diffs these
-blocks. (The first drift would be a fix; the second is a gate.)
+Origin: the `away-loop` skill. These blocks are copied from its SKILL.md, with the changes named below, so that the
+two skills behave alike where they should. **They exist twice.** When `away-loop` changes one of them, check this
+file in the same change, and the other way round. Nothing checks yet that the copies match: the first drift between
+them is fixed by hand, and a second earns a check that diffs these blocks.
 
 ## The re-arm sequence (away-loop, Part 2, step 0)
 
@@ -20,9 +20,12 @@ If `CronCreate` fails (scheduler off, permission refused, a task limit), keep th
 the old job expires; could not re-arm" in the report and in "Waiting for you", and never claim the loop continues
 past that time.
 
-Changed for the on-loop (details in tick.md, step 2): the sequence is also used to **switch speed** (work beat to quiet beat) and **at a
-renewal**; and it is **never used to outlive the charter** (7 days, the user's renewal needed). The charter's length
+Changed for the on-loop (details in tick.md, step 2): the sequence is also used to **switch speed** (work beat to
+quiet beat) and **at a renewal**; and it is **never used to outlive the charter** (7 days, the user's renewal needed). The charter's length
 is a decision of the user and does not follow the job's expiry.
+
+Also changed: the on-loop writes the could-not-re-arm message in its report, not in a status table, and without
+away-loop's parenthetical "(7 or 30 days after <old creation>, by version)".
 
 ## The scheduling check (away-loop, Part 1, step 2)
 
@@ -67,8 +70,9 @@ Seven sections, in this order:
 Changed: after section 4, **Decisions** (counts by class and status, flagged ones a line each); after section 5,
 **Drift and budget** (the drift table and every limit's current value).
 
-Rules, unchanged: nothing else goes in; diagrams are ASCII, before the prose, labelled MEASURED, DERIVED or
-EXPECTED; every count comes from the repo or GitHub at the time of writing; every PR and doc is a full link; the
+Rules, unchanged: nothing else goes in; diagrams are ASCII, before the prose, labelled MEASURED (counted from the
+repo or GitHub now), DERIVED (calculated from measured numbers) or EXPECTED (a forecast), and a range chosen by
+judgement is labelled JUDGMENT; every count comes from the repo or GitHub at the time of writing; every PR and doc is a full link; the
 cadence is elapsed time (about every 2 hours from `last full report`), because ticks start cold and missed ticks
 collapse into one fire; save it as `YYYY-MM-DD-HHMM-status.md` in the project's progress folder, a snapshot never
 edited.

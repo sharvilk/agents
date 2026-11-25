@@ -2,17 +2,9 @@
 
 Pasted in full into the brief of the reviewer that holds this seat.
 
-## Table of contents
-
-- [Seat this lens when](#seat-this-lens-when)
-- [Check](#check)
-- [Typical blocking-grade findings](#typical-blocking-grade-findings)
-- [Usually not blocking](#usually-not-blocking)
-- [Where to look](#where-to-look)
-
 ## Seat this lens when
 
-the target adds or changes a query, a loop over stored data, a list or search page, a cache, a fan-out, a batch, or a hot path, or states a size or load it must handle.
+The target adds or changes a query, a loop over stored data, a list or search page, a cache, a fan-out, a batch, or a hot path, or states a size or load it must handle.
 
 ## Check
 

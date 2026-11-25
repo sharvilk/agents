@@ -5,7 +5,16 @@ description: Keep a session working, visibly, while the user is away for hours (
 
 # Away loop
 
-**If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED (owned by another skill), never arm, and do not stop that loop.** A phrase on its `Answers:` line goes to that loop and only changes its posture. An arming phrase of this skill's that is not on that line (for example "I'm going to sleep" while the loop is PAUSED) does not arm, and while the heading is PAUSED an arming phrase gets that one line whether or not it is listed: say in one line which loop owns the session and how to stop or resume it, then stop. Its other phrases stay yours as usual. A consumed away plan is not a loop.
+**If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED (owned by another skill), never arm, and do not stop that loop.**
+
+- A phrase on the heading's `Answers:` line goes to that loop and only changes its posture.
+- An arming phrase of this skill's that is not on that line (for example "I'm going to sleep" while the loop is
+  PAUSED) does not arm.
+- While the heading is PAUSED, an arming phrase gets one line whether or not it is listed: say in one line which
+  loop owns the session and how to stop or resume it, then stop.
+- This skill's other phrases stay yours as usual.
+
+A consumed away plan is not a loop.
 
 The user is gone for hours, and the work should not stall at the first thing that needs them. This skill
 turns "keep going while I'm away" into a procedure. A wake-up every 30 minutes keeps the session moving.
@@ -13,24 +22,24 @@ Each tick does the next unblocked step, decides what the agent may decide, and q
 The loop stops the moment the user is back, and they get one summary instead of scrolling through the night.
 
 ```
- start ──► plan in the todo file ──► schedule the wake-up ──► tell the user what runs and what stays theirs
+ start ──► plan in the todo file ──► schedule the wake-up ──► tell the user the plan
    │
  tick (every 30 min) ──► plan consumed? ──yes──► delete own job, stop
    │ no
    ▼
-   job older than 6 days? ──yes──► create new job ► record it ► delete old job ► CronList: exactly one
-   │ no                                (CronCreate fails: keep the old job, say when the wake-up ends)
+   job older than 6 days? ──yes──► create new job ► record it ► delete old job ► CronList: one job
+   │ no                          (CronCreate fails: keep the old job, say when the wake-up ends)
    ▼
-   machine + agents + PRs ──► next unblocked step ──► log decisions / queue the rest ──► status table
-                                                              about every 2 hours, or a milestone ──► full report
- stop (the user is back, or the end time) ──► delete every recorded job, check CronList ──► one summary
+   machine + agents + PRs ──► next unblocked step ──► log decisions, queue the rest ──► status table
+                                (about every 2 hours, or at a milestone: the full report instead)
+ stop (the user is back, or the end time) ──► delete every recorded job, check CronList ──► summary
 ```
 
 The plan and the queue live in the session's todo-sync list, so this skill needs the `todo-sync` skill installed.
 That skill says where the list is: wherever this skill says "the todo file", find it the way `todo-sync` does, and
 never assume a path. If `todo-sync` is not available, say so before the user leaves, and keep the plan in a file
 the user names, or in the project's own planning doc; "the todo file" then means that file. The `checkpoint` skill
-is optional: for a restart or a quit rather than carrying on, use it instead.
+is optional. When the user is about to restart or quit, use `checkpoint` instead of carrying on.
 
 Scheduled tasks are scoped to the session: they belong to the session that created them, and Claude Code restores
 them when that session is resumed (unless they expired). The rules below are this skill's defaults. A project's own
@@ -62,8 +71,8 @@ Write every time with `date +%Y-%m-%dT%H:%M%z`, so a later tick can compare it w
 4. **Schedule the wake-up:** `CronCreate`, recurring, with the tick prompt below. If it is refused or fails, go
    back to the message in step 2 and stop here. If it succeeds, record its id and creation time in the todo file
    at once. If the user gave a return time, also schedule a one-shot at that time with the return prompt below,
-   pinned to a minute that is not :00 or :30 (the docs say one-shots on those minutes can fire up to 90 seconds
-   early), and record its id and time too.
+   pinned to a minute that is not :00 or :30 (Claude Code's scheduled-tasks documentation says one-shots on those minutes can fire
+   up to 90 seconds early), and record its id and time too.
 5. **Tell the user, in a few lines** (only after step 4 succeeded):
    - what will run;
    - what stays theirs (see "Never while away");
@@ -95,7 +104,7 @@ it already stopped, do nothing.
 
 0. **Check the plan, then re-arm if the job is old.**
    - If this session's todo file has no Away plan, or the plan is marked consumed, this tick is stale (for
-     example a job restored with a resumed session: the docs say resume restores tasks that have not expired).
+     example a job restored with a resumed session: Claude Code's scheduled-tasks documentation says resume restores tasks that have not expired).
      Delete this job with `CronDelete`, say so in one line, and stop.
    - Recurring jobs expire after a fixed time, firing once more and then deleting themselves: 7 days after
      creation on Claude Code versions before 2.1.330, 30 days from 2.1.330 on. Re-arm after 6 days, which is safe
@@ -162,7 +171,8 @@ user can catch up in one read and decide what to unblock. It has seven sections,
 The rules that make it trustworthy:
 - **Nothing else goes in.** No restating of earlier ticks, and no item without a link or a number behind it.
 - **Diagrams are ASCII**, placed before the prose they explain, and every one is labelled MEASURED, DERIVED or
-  EXPECTED.
+  EXPECTED. The labels mean: MEASURED, counted from the repository or GitHub now; DERIVED, calculated from measured
+  numbers; EXPECTED, a forecast. A range you chose is labelled JUDGMENT.
 - **Every count comes from the repository or GitHub at the time of writing**, never from memory of an earlier tick.
   Run `date +%Y-%m-%dT%H:%M%z` for the time on the heading.
 - **Every PR and doc is a full clickable link**, never a bare `#N`.
@@ -204,7 +214,8 @@ The loop ends on the user's **first message back**, or at the end time if one wa
 ## Traps
 
 - **Future timestamps in docs.** A tracker line stamped with a guessed time ("~23:00") lands minutes ahead of the
-  clock. A time ahead of the clock reads as a time that hasn't happened yet. Run `date +%Y-%m-%dT%H:%M%z` before writing a time, and write the time it is.
+  clock, so it reads as a time that has not happened yet. Run `date +%Y-%m-%dT%H:%M%z` before writing a time, and
+  write the time it is.
 - **"Merge-ready" with open threads.** A green CI and a passing verdict say nothing about unresolved review
   comments. Query the threads before the word "ready".
 - **Disk runs out quietly.** Installs grow caches that are never cleaned. Check free space before each install,

@@ -1,13 +1,16 @@
 # Routing and hand-offs
 
-The session's state decides who answers a phrase, not the words. A message from the user **never stops the loop**:
-it is answered first and the loop carries on. The full table, with every skill's column, is in this skill's
+The session's state decides who answers a phrase, not the words. No ordinary message stops the
+loop: "stop the loop" ends it, "pause the loop" pauses it, and anything else, even a message with the word "stop" in
+it, is answered first while the loop carries on. The full table, with every skill's column, is in this skill's
 README ("Which skill answers which phrase"); this is the on-loop's side.
+
+Read across: the phrase, then what happens in each session state.
 
 | Phrase | Nothing armed | away-loop armed | on-loop ARMED | on-loop PAUSED | on-loop ENDED, entries pending |
 | --- | --- | --- | --- | --- | --- |
-| "I'm back", "good morning", "back online" | checkpoint resumes, if a resume block exists | away-loop stops and summarises | resume block: checkpoint resumes, re-arming only a loop it paused (`reason checkpoint`); none: a short status and the review digest offer | resume block: checkpoint resumes and re-arms a `reason checkpoint` pause, nothing for `reason user`; none: not answered by the loop | not answered by the loop |
-| "continue", "carry on", "keep going" | checkpoint resumes, if a resume block exists | (already working) | resume block: as above; none: the on-loop says it is already working | resume block: as above; none: not on its `Answers:` line | not answered by the loop |
+| "I'm back", "good morning", "back online" | checkpoint resumes, if a resume block exists | away-loop stops and summarises | with a resume block, checkpoint resumes and re-arms only a loop it paused (`reason checkpoint`); with none, a short status and the review digest offer | with a resume block, checkpoint resumes and re-arms a `reason checkpoint` pause, nothing for `reason user`; with none, not answered by the loop | not answered by the loop |
+| "continue", "carry on", "keep going" | checkpoint resumes, if a resume block exists | (already working) | with a resume block, as above; with none, the on-loop says it is already working | with a resume block, as above; with none, not on its `Answers:` line | not answered by the loop |
 | "resume the loop" | nothing to resume | (already working) | already working | the on-loop resumes (charter clock kept) | nothing to resume |
 | a bare "resume", with a "Resume here" block | checkpoint resumes | (already working) | checkpoint resumes | checkpoint re-arms a `reason checkpoint` pause only, nothing for `reason user` | not answered by the loop |
 | a bare "resume", no resume block | nothing to resume | (already working) | the on-loop: already working | the on-loop resumes (charter clock kept) | nothing to resume |
