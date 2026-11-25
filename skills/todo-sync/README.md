@@ -27,7 +27,8 @@ todo-sync makes the list a commitment. It lives in a file outside the conversati
 it. Every rewrite copies the open items first and diffs against the old list before saving. When the list is lost
 anyway, the transcript still holds every edit the session made to it.
 
-A todo list whose heading is `## Loop state: ARMED` or `PAUSED` is never deleted, in any session's file, including through "wrap up", "close out", "close this initiative" and "clean up old todo lists": todo-sync shows that heading and skips the list. Reorganizing or recovering a list keeps that skill's blocks whole.
+A todo list whose heading is `## Loop state: ARMED` or `PAUSED` is never deleted, in any session's file, including through "wrap up", "close out", "close this initiative" and "clean up old todo lists": todo-sync shows that heading and skips the list. Reorganizing or recovering a list keeps the loop's blocks whole. (In this repo, `on-loop` is the skill that writes that
+heading.)
 
 ## How it works
 
@@ -73,7 +74,7 @@ part, never the whole initiative, and no list is deleted without your yes for th
   session is still running, since a running session keeps writing its list; it deletes a list only on your yes. A
   list is never deleted because it looks old.
 - **Cleanup is on demand.** Many sessions end without closing out. When you ask, the agent runs
-  `list-old-lists.py`, shows you the table of lists untouched for 14 days or more, and closes the ones you pick,
+  `list-old-lists.py`, shows you the table of lists untouched for more than 14 days, and closes the ones you pick,
   after showing each one's open items. Nothing runs it on a schedule, and nothing is deleted on its output alone.
 - **The todo tool is a view.** When the session has `TodoWrite` or the task tools (`TaskCreate`, `TaskUpdate`,
   `TaskList`), the agent uses it for the panel, and keeps the file as the list.
@@ -93,7 +94,8 @@ A list has four sections: **Open** (each item with what is needed to act on it l
 **Waiting on the user**, **Done** (with evidence) and **Dropped** (with the reason).
 
 **Why not `~/.claude/todos/`?** It is a legacy folder that current Claude Code no longer writes, and its cleanup
-deletes files there once they are older than `cleanupPeriodDays`, 30 days by default. A list kept there disappears
+deletes files there once they are older than `cleanupPeriodDays`, 30 days by default
+([Claude Code's directory reference](https://code.claude.com/docs/en/claude-directory)). A list kept there disappears
 after a month. Earlier versions of this skill kept lists there, so a session whose list is already there keeps using
 it in place until it ends: the skill looks there only for the session's own id, and every new list goes to
 `todo-sync/`.
@@ -126,7 +128,7 @@ To make it the rule in every session, add a line to your `CLAUDE.md`:
 Full procedure, including how to recover items lost to compaction, is the `todo-sync` skill.
 ```
 
-The folder check needs Python 3.8 or later. It has been run on macOS only.
+Both scripts need Python 3.8 or later. It has been run on macOS only.
 
 ## Examples
 
@@ -184,6 +186,9 @@ items, and it deletes a list only when you confirm.
 python3 ~/.claude/skills/todo-sync/check-todos-folder.py [list-folder]
 ```
 
+The path is the copy install's. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
+folder, so you never type the path.
+
 By default it checks `<config>/todo-sync`, where `<config>` is `$CLAUDE_CONFIG_DIR` or `~/.claude`. It only reads,
 and moves or deletes nothing. It reports, one line each:
 - a file or symlink directly in the list folder (lists go in `<initiative>/`);
@@ -227,6 +232,9 @@ folder. The tests that make a folder unreadable are skipped when run as root, wh
 ```bash
 python3 ~/.claude/skills/todo-sync/list-old-lists.py [--days N] [config-folder]
 ```
+
+The path is the copy install's. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
+folder, so you never type the path.
 
 It lists every `<session-id>.md` directly inside an initiative folder of `<config>/todo-sync/` and
 `<config>/todos/` whose modification time is more than N days ago (default 14), oldest first. `<config>` is the

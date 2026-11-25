@@ -96,7 +96,7 @@ change was made after seeing the result, so it is not a prediction.
 
 - **It stops rather than guesses.** The plan's claim that other pages were already teal had nothing behind it, and
   the panel said so instead of assuming.
-- **Rounds work end to end.** The owner answered in the plan, the next round marked the condition fixed, and the
+- **Rounds work end to end** (second version). The owner answered in the plan, the next round marked the condition fixed, and the
   gate passed.
 - **Duplicate findings needed merging.** Four findings named the same missing renderer, and five Opus verifiers ran
   on a two-line change. The skill now merges duplicates before verifying, and caps verifiers at 2 at quick depth.

@@ -27,7 +27,7 @@ reported done, and the machine slows until a person notices. Without this skill,
 by hand: stop every agent, read every worktree's state, sweep for leftover processes, write a resume plan. This skill
 is that procedure, written down, with a script for the parts that should never depend on memory.
 
-If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill, every checkpoint trigger stays checkpoint's. A restart or a quit deletes that loop's job first and rewrites the marker as PAUSED with `reason checkpoint`; a break leaves the job and marker alone. A "Resume here" block is resumed first, and only a marker PAUSED with `reason checkpoint` is re-armed, by invoking the owner skill and running its "resume the loop" step (the charter's clock is kept). A marker PAUSED with `reason user` is left alone. Otherwise the phrases on the heading's `Answers:` line go to that loop.
+If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill, every checkpoint trigger stays checkpoint's. A restart or a quit deletes that loop's job first and rewrites the marker as PAUSED with `reason checkpoint`; a break leaves the job and marker alone. A "Resume here" block is resumed first, and only a marker PAUSED with `reason checkpoint` is re-armed, by invoking the owner skill and running its "resume the loop" step (the charter's clock is kept). A marker PAUSED with `reason user` is left alone. Otherwise the phrases on the heading's `Answers:` line go to that loop. (In this repo, `on-loop` is the skill that writes that heading.)
 
 ## What a restart keeps and loses
 
