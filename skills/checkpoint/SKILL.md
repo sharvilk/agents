@@ -12,6 +12,8 @@ committed is pushed, and leaves no process behind. Then it says, in a few lines,
 The resume block is written into the session's `todo-sync` list, so checkpoint needs the `todo-sync` skill installed
 too.
 
+**If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill** (the heading names the owner): every phrase in this skill's description stays yours in every state ("checkpoint", "save progress", "I'm going to restart", "before I restart", "before I quit", "stop everything safely", "is it safe to restart"). For a restart or a quit with the marker ARMED, delete the loop's job first, rewrite the marker as `## Loop state: PAUSED — <owner> — charter valid until <date> — reason checkpoint`, and put "resume the loop (owner <owner>, charter valid until <date>)" first in the resume block. A break (no restart, no quit) leaves the loop's job and marker alone; when it leaves an ARMED loop running, its summary names the loop from the marker and says "pause the loop" pauses it. When a "Resume here" block for this session exists, "continue", "resume", "carry on", "keep going" and "I'm back" are yours first: resume, and re-arm only a loop whose marker is PAUSED with `reason checkpoint`, by invoking the owner skill named in the heading and running that skill's "resume the loop" step, which keeps the charter's clock. A marker PAUSED with `reason user` gets no re-arm item and is left alone. With no resume block, those phrases go to the loop when its `Answers:` line lists them.
+
 ```
  SURVIVES a restart (disk)                  LOST in a restart
  worktrees, commits, uncommitted edits      running subagents and their unreported progress

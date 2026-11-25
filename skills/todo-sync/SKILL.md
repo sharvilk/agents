@@ -5,6 +5,8 @@ description: Keep each session's TODO list complete and current in its own file 
 
 # TODO sync
 
+**A todo list whose heading is `## Loop state: ARMED` or `## Loop state: PAUSED` is never deleted, in any session's file.** That holds for "wrap up", "close out", "close this initiative" and "clean up old todo lists" alike: show that heading and skip that list. Skipping applies to deletion only: for this session's own list, todo-sync still closes its own part. **If this session's own list has such a heading owned by another skill:** "wrap up" or "close out" closes your part as below but never deletes the list and never removes that skill's blocks (the heading, its `Answers:` and `Owns:` lines, and every section the `Owns:` line names). Reorganize-before-prune and recovery keep those blocks whole. The owning skill ends its loop and writes ENDED; only then may the list be closed out.
+
 The list is a commitment, not a scratchpad. An item that disappears reads as "done", so nothing leaves
 the list without being confirmed.
 

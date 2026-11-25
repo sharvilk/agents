@@ -23,6 +23,8 @@ too much: merge, delete, change settings. This skill sits between the two. It ke
 every decision it took so you can overturn any of them, and never touches the short list of things that stay yours
 (merges you did not name, deletes, production writes, settings, big decisions).
 
+If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill, away-loop never arms and does not stop that loop; the phrases on the heading's `Answers:` line go to it, and for an arming phrase that is not on that line it says in one line which loop owns the session and how to stop or resume it.
+
 ## How a tick works
 
 ```
