@@ -1,8 +1,8 @@
 # agents
 
-The AI-agent kit I use and share. It starts with skills, plain folders you can browse, read and copy. More kinds
-will join as they are ready: commands, prompts, and guides to ways of working with agents. Each skill's own README
-is its front page.
+The AI-agent kit I use and share. It starts with skills for Claude Code: plain folders you can browse, read and
+copy. More kinds will join as they are ready: commands, prompts, and guides to ways of working with agents. Each
+skill's own README is its front page.
 
 ## Skills
 
@@ -16,7 +16,7 @@ is its front page.
 
 ## Use with Claude Code
 
-Add the marketplace once, then install what you want:
+Each skill installs as a Claude Code plugin. Add the marketplace once, then install what you want:
 
 ```
 /plugin marketplace add sharvilk/agents
@@ -24,25 +24,30 @@ Add the marketplace once, then install what you want:
 ```
 
 Swap `todo-sync` for any skill in the table. Installing `checkpoint`, `away-loop` or `on-loop` also installs
-`todo-sync`, which they need. Start a new session afterwards so the skill is loaded. A skill runs with your permissions, so
-read it before you install it; each skill's README says what it reads, writes and runs.
+`todo-sync`, which they need. Start a new session afterwards so the skill is loaded.
 
-Without the plugin system, copy the skill's folder: `skills/<name>/` to `~/.claude/skills/<name>/` (or under
-`$CLAUDE_CONFIG_DIR` if you set it). For
-`crossfire`, also copy its two agent files from `skills/crossfire/agents/` to `~/.claude/agents/`. For `checkpoint`,
-`away-loop` or `on-loop`, copy `todo-sync` too.
+A skill runs with your permissions, so read it before you install it. Each skill's README says what it reads,
+writes and runs.
 
-To update, open `/plugin`, go to Installed and choose "Update now", or run `claude plugin update <name>@agents`
+**Without the plugin system**, copy the skill's folder, `skills/<name>/`, to `~/.claude/skills/<name>/` (or to
+`$CLAUDE_CONFIG_DIR/skills/<name>/` if you set that variable). `checkpoint`, `away-loop` and `on-loop` need
+`todo-sync` copied too. `crossfire` also uses its two agent files, copied from `skills/crossfire/agents/` to
+`~/.claude/agents/`: they are recommended, because they make its reviewers read-only.
+
+**To update**, open `/plugin`, go to Installed and choose "Update now", or run `claude plugin update <name>@agents`
 in a shell. Auto-update is off by default for a third-party marketplace; turn it on from `/plugin` under
-Marketplaces. To remove a skill, run `/plugin uninstall <name>@agents`. Uninstalling `checkpoint`, `away-loop` or `on-loop`
-leaves `todo-sync` installed, since it was installed for them; `claude plugin prune` removes auto-installed dependencies
-that no plugin needs any more ([plugin dependencies](https://code.claude.com/docs/en/plugins/dependencies.md)).
+Marketplaces.
+
+**To remove a skill**, run `/plugin uninstall <name>@agents`. Uninstalling `checkpoint`, `away-loop` or `on-loop`
+leaves `todo-sync` installed, since it came in as their dependency; `claude plugin prune` removes dependencies that
+no installed plugin needs any more ([plugin dependencies](https://code.claude.com/docs/en/plugins/dependencies.md)).
 
 ## Use with other agents
 
-The skills are written for Claude Code and use its features: scheduled jobs in `away-loop` and `on-loop`, subagents and agent
-files in `crossfire`, and the session id and the skill-folder variable in `todo-sync` and `checkpoint`. The
-instructions are plain Markdown that another agent can read, but those parts need that agent's own equivalents.
+The skills are written for Claude Code and use its features: scheduled jobs in `away-loop` and `on-loop`,
+subagents and agent files in `crossfire`, and the variables that give the session id and the skill's own folder
+(`${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}`) in `todo-sync` and `checkpoint`. The instructions are plain
+Markdown that another agent can read, but those parts need that agent's own equivalents.
 
 ## Layout
 
@@ -53,15 +58,17 @@ instructions are plain Markdown that another agent can read, but those parts nee
  ├── away-loop/
  ├── crossfire/          its two reviewer agents are in crossfire/agents/
  └── on-loop/
- .claude-plugin/marketplace.json     the only packaging file: lets Claude Code install a skill as a plugin
+ .claude-plugin/marketplace.json     the only packaging file; Claude Code installs from it
 ```
 
 ## Contributing
 
-This repo is generated from a private source and is never edited by hand. A fix or a change is made at the
-source, exported, and arrives here as a pull request. Issues are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). A pull
-request is read as a proposal and re-made at the source, with credit. To report a vulnerability privately, see
-[SECURITY.md](SECURITY.md). Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
+This repo is generated from a private source and is never edited by hand. A fix or a change is made at the source,
+exported, and arrives here as a pull request.
+
+Issues are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). A pull request is read as a proposal and re-made at the
+source, with credit. To report a vulnerability privately, see [SECURITY.md](SECURITY.md). Everyone taking part
+follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 

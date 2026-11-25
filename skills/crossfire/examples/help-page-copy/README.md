@@ -32,7 +32,7 @@ of the help pages already do". Nothing was planted: this was meant as the clean 
 
 ## Round 1
 
-`/crossfire docs/plans/help-copy.md`, on 2026-11-12, with the first version of the skill.
+`/crossfire docs/plans/help-copy.md`, on 2026-11-12, with the [first version](../README.md#versions) of the skill.
 
 ```
  depth: QUICK (one sentence of copy and one config value; no code, no data)
@@ -66,7 +66,7 @@ The owner answered in the plan. [round2/](round2/) holds exactly what was added:
 - [help-pages.json](round2/config/help-pages.json), which shows the account and billing pages already teal;
 - an "Answers to the review's questions" section in [the plan](round2/docs/plans/help-copy.md).
 
-Then `/crossfire docs/plans/help-copy.md` ran again, with the second version of the skill.
+Then `/crossfire docs/plans/help-copy.md` ran again, with the [second version](../README.md#versions) of the skill.
 
 ```
  round 2, quick, same seats as fresh agents
@@ -88,16 +88,16 @@ is the fallback the rounds procedure describes.
 
 ## Scored against the answer key
 
-Round 1: STOP, no blocking rows. Round 2: PASS, no blocking rows. The key was written expecting PASS in one round.
-After round 1 it was changed to expect STOP for round 1 and PASS for round 2, because round 1's stop was right. That
-change was made after seeing the result, so it is not a prediction.
+Round 1: STOP, no blocking rows. Round 2: PASS, no blocking rows. The key expects STOP in round 1 and PASS in
+round 2, because round 1's stop was right. It was first written to expect PASS in one round and was set to its
+current value after round 1's result was seen, so it is not a prediction.
 
 ## What we learned
 
-- **It stops rather than guesses.** The plan's claim that other pages were already teal had nothing behind it, and
+- **It stops rather than guessing.** The plan's claim that other pages were already teal had nothing behind it, and
   the panel said so instead of assuming.
-- **Rounds work end to end** (second version). The owner answered in the plan, the next round marked the condition fixed, and the
-  gate passed.
+- **Rounds work end to end** ([second version](../README.md#versions)). The owner answered in the plan, the next
+  round marked the condition fixed, and the gate passed.
 - **Duplicate findings needed merging.** Four findings named the same missing renderer, and five Opus verifiers ran
   on a two-line change. The skill now merges duplicates before verifying, and caps verifiers at 2 at quick depth.
 - **The chair's cells needed fixed values.** It wrote "major (minor if only the shade is off)" in one cell. The

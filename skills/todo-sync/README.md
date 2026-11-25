@@ -4,12 +4,44 @@ A Claude Code skill that keeps each session's todo list complete. The list is a 
 session, and nothing leaves it unless it is done, with evidence, or you agreed to drop it. When a list goes missing
 or comes back short, the skill rebuilds it from the session's own transcript.
 
+## Install
+
+As a plugin, from the `agents` marketplace:
+
+```
+/plugin marketplace add sharvilk/agents
+/plugin install todo-sync@agents
+```
+
+Installing `checkpoint`, `away-loop` or `on-loop` also installs `todo-sync`, which they need.
+
+Or copy this folder to `~/.claude/skills/todo-sync/` (or `$CLAUDE_CONFIG_DIR/skills/todo-sync/` if you set that
+variable). Nothing needs registering: Claude Code finds the skill by the `name` and `description` at the top of
+`SKILL.md`. Start a new session afterwards so the skill is loaded. To check it loaded, ask for it by name ("use
+todo-sync to check my list").
+
+Its two helper scripts, the folder check and the old-lists listing, need Python 3.8 or later. The skill has been
+run on macOS only.
+
+**Use.** There is nothing to type. The agent loads the skill by its description. That happens at the start of a
+session, after compaction, before it rewrites a list and before it reports work complete. It also loads when you ask
+"did you lose anything" or say "close this initiative", "we're done with <initiative>", "wrap up this initiative",
+"close out my todo list" or "clean up old todo lists". A bare "wrap up" or "close out" closes only that session's
+part, never the whole initiative, and no list is deleted without your yes for that list.
+
+To make it the rule in every session, add a line to your `CLAUDE.md`:
+
+```md
+## Todo lists
+Full procedure, including how to recover items lost to compaction, is the `todo-sync` skill.
+```
+
 ## Table of contents
 
 - [Why](#why)
 - [How it works](#how-it-works)
+- [Working with a loop skill](#working-with-a-loop-skill)
 - [What it stores, and where](#what-it-stores-and-where)
-- [Install](#install)
 - [Examples](#examples)
 - [The folder check](#the-folder-check)
 - [The old-list listing](#the-old-list-listing)
@@ -26,9 +58,6 @@ rebuilds a list from memory, and whatever memory missed is gone. Nothing errors:
 todo-sync makes the list a commitment. It lives in a file outside the conversation, so compaction cannot touch
 it. Every rewrite copies the open items first and diffs against the old list before saving. When the list is lost
 anyway, the transcript still holds every edit the session made to it.
-
-A todo list whose heading is `## Loop state: ARMED` or `PAUSED` is never deleted, in any session's file, including through "wrap up", "close out", "close this initiative" and "clean up old todo lists": todo-sync shows that heading and skips the list. Reorganizing or recovering a list keeps the loop's blocks whole. (In this repo, `on-loop` is the skill that writes that
-heading.)
 
 ## How it works
 
@@ -50,20 +79,17 @@ heading.)
         │
   part of the work finished ──► every open item done, dropped or moved? ──► delete its own file
         │
-  user closes the whole initiative ──► find every list of it in both folders ──► own list closed out;
+  user closes the whole initiative ──► find its lists in both folders ──► own list closed out;
         │                                for each other list: show its open items, ask whether that
         │                                session still runs, delete only on the user's yes
         │
-  user asks to clean up old lists ──► list-old-lists.py (read-only) ──► table ──► user picks lists ──►
-                                      each pick: show open items, delete only on the user's yes
+  user asks to clean up old lists ──► list-old-lists.py (read-only) ──► table ──►
+                                      user picks lists; each pick: show open items,
+                                      delete only on the user's yes
 ```
 
-The skill is the procedure in [SKILL.md](SKILL.md). The agent loads it by its description: at the start of a
-session, after compaction, before rewriting a list, when you ask "did you lose anything", and before it reports
-work complete, and when you say "close this initiative", "we're done with <initiative>", "wrap up this initiative",
-"close out my todo list" or "clean up old todo lists". A bare "wrap up" or "close out" closes only that session's
-part, never the whole initiative, and no list is deleted without your yes for that list. The two scripts, [check-todos-folder.py](check-todos-folder.py) and
-[list-old-lists.py](list-old-lists.py), only read.
+The skill is the procedure in [SKILL.md](SKILL.md). The two scripts, [check-todos-folder.py](check-todos-folder.py)
+and [list-old-lists.py](list-old-lists.py), only read.
 
 - **One file per session.** Two sessions on the same work keep two files, so they never overwrite each other. A
   session continuing another's work takes over its file only when you say the other session won't resume.
@@ -79,13 +105,21 @@ part, never the whole initiative, and no list is deleted without your yes for th
 - **The todo tool is a view.** When the session has `TodoWrite` or the task tools (`TaskCreate`, `TaskUpdate`,
   `TaskList`), the agent uses it for the panel, and keeps the file as the list.
 
+## Working with a loop skill
+
+Another skill can run a background loop and mark the session's todo list with a `## Loop state: ARMED` (or
+`PAUSED`) heading, to show that the loop owns the list. todo-sync then never deletes that list, in any session's
+file, even on "wrap up", "close out", "close this initiative" or "clean up old todo lists": it shows the heading and
+skips the list. Reorganizing or recovering a list keeps the loop's blocks whole. In this repo, `on-loop` is the skill
+that writes that heading.
+
 ## What it stores, and where
 
 | What | Where | Written by |
 | --- | --- | --- |
 | One list per session | `~/.claude/todo-sync/<initiative>/<session-id>.md`, or `$CLAUDE_CONFIG_DIR/todo-sync/…` when that is set | the agent, through its file tools |
 | A list started before that folder existed | `~/.claude/todos/<initiative>/<session-id>.md`, used where it is until its session ends, never moved | the agent, as above |
-| Nothing else | | the folder check reports anything else found there |
+| Anything else | not allowed in the list folder | not written; the folder check reports it |
 
 `<initiative>` is a short kebab-case name for the piece of work, shared by every session on it. `<session-id>` is
 the session's id, which the skill reads from `${CLAUDE_SESSION_ID}`.
@@ -108,28 +142,6 @@ in the list folder except the lists, so a stray working file never reaches the b
 !/todo-sync/*/*.md
 ```
 
-## Install
-
-As a plugin, from the `agents` marketplace:
-
-```
-/plugin marketplace add sharvilk/agents
-/plugin install todo-sync@agents
-```
-
-Or copy this folder to `~/.claude/skills/todo-sync/`. Nothing needs registering: Claude Code finds the skill by the
-`name` and `description` at the top of `SKILL.md`. To check it loaded, ask for it by name ("use todo-sync to check
-my list").
-
-To make it the rule in every session, add a line to your `CLAUDE.md`:
-
-```md
-## Todo lists
-Full procedure, including how to recover items lost to compaction, is the `todo-sync` skill.
-```
-
-Both scripts need Python 3.8 or later. It has been run on macOS only.
-
 ## Examples
 
 **A list in use.** Session `0b9e7c1a-…` working on a billing export writes
@@ -140,7 +152,7 @@ Both scripts need Python 3.8 or later. It has been run on macOS only.
 
 ## Open
 - [ ] CSV export: escape commas in customer names (branch fix/csv-escape, PR 214, review pending)
-- [ ] Follow-ups from review: (a) rename `toRow`, (b) test the empty-invoice case, (c) README example
+- [ ] Review follow-ups: (a) rename `toRow`, (b) test the empty-invoice case, (c) README example
 
 ## Waiting on the user
 - Should exports include refunded invoices? Asked 2026-11-20.
@@ -169,7 +181,8 @@ folders and closes out its own as usual. For each other list it shows you the op
 
 ```
 Other lists in billing-export:
-  f1e2d3c4-b5a6-4978-8695-a4b3c2d1e0f9.md   2 open: "- [ ] README example", "- [ ] test the empty invoice"
+  f1e2d3c4-b5a6-4978-8695-a4b3c2d1e0f9.md
+    2 open: "- [ ] README example", "- [ ] test the empty invoice"
 Is that session still running? If not, are those two items done, dropped, or moved somewhere?
 ```
 
@@ -186,17 +199,19 @@ items, and it deletes a list only when you confirm.
 python3 ~/.claude/skills/todo-sync/check-todos-folder.py [list-folder]
 ```
 
-The path is the copy install's. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
+This path is for a copy install. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
 folder, so you never type the path.
 
 By default it checks `<config>/todo-sync`, where `<config>` is `$CLAUDE_CONFIG_DIR` or `~/.claude`. It only reads,
 and moves or deletes nothing. It reports, one line each:
+
 - a file or symlink directly in the list folder (lists go in `<initiative>/`);
 - in an initiative folder: a symlink, a subfolder (once, with its file count, never entered), a backup copy of a
   list (`.bak`, `.backup`, `presync` or `pre-sync` in the name), a file whose name holds a session id but is not
-  exactly `<session-id>.md` (`<id>-notes.md`, `<id>.old.md`, `copy of <id>.md`), or a file that is not `.md`. A
-  Markdown file with any other name passes.
+  exactly `<session-id>.md` (`<id>-notes.md`, `<id>.old.md`, `copy of <id>.md`), or a file that is not `.md`;
 - the list folder itself, when it is a file or a symlink rather than a real folder.
+
+A Markdown file with any other name passes.
 
 ```
 $ python3 check-todos-folder.py
@@ -217,15 +232,35 @@ go is your call.
 python3 -I test_check_todos_folder.py      # from this folder
 ```
 
-Run on 2026-11-21 with Python 3 on macOS: 19 tests passed. Each of twenty-two deliberate breaks of the script made
-at least one test fail: another default folder; ignoring `CLAUDE_CONFIG_DIR`; no check for a file, or for a symlink,
-directly in the list folder; a symlink in an initiative not reported; no check for files named after a session; the
-session-id match anchored at the start; no backup-copy check; no `pre-sync` match; no check for files that are not
-`.md`; `.DS_Store` not ignored; every hidden file ignored; a wrong subfolder file count; no "at least" on a count
-that missed an unreadable folder; an unreadable initiative skipped silently; no "partly unreadable" report; an
-unreadable list folder passing; an incomplete check exiting 1 rather than 2; the summary dropped when the check is
-incomplete; the singular wording for two entries; a list folder that is a file passing; following a symlinked list
-folder. The tests that make a folder unreadable are skipped when run as root, which can read anything.
+19 tests pass (run on 2026-11-21, macOS, Python 3). Each of 22 deliberate breaks of the script made at least one test
+fail. The tests that make a folder unreadable are skipped when run as root, which can read anything.
+
+<details>
+<summary>The 22 deliberate breaks</summary>
+
+- another default folder
+- `CLAUDE_CONFIG_DIR` ignored
+- no check for a file, or for a symlink, directly in the list folder
+- a symlink in an initiative not reported
+- no check for files named after a session
+- the session-id match anchored at the start
+- no backup-copy check
+- no `pre-sync` match
+- no check for files that are not `.md`
+- `.DS_Store` not ignored
+- every hidden file ignored
+- a wrong subfolder file count
+- no "at least" on a count that missed an unreadable folder
+- an unreadable initiative skipped silently
+- no "partly unreadable" report
+- an unreadable list folder passing
+- an incomplete check exiting 1 rather than 2
+- the summary dropped when the check is incomplete
+- the singular wording for two entries
+- a list folder that is a file passing
+- following a symlinked list folder
+
+</details>
 
 ## The old-list listing
 
@@ -233,7 +268,7 @@ folder. The tests that make a folder unreadable are skipped when run as root, wh
 python3 ~/.claude/skills/todo-sync/list-old-lists.py [--days N] [config-folder]
 ```
 
-The path is the copy install's. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
+This path is for a copy install. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
 folder, so you never type the path.
 
 It lists every `<session-id>.md` directly inside an initiative folder of `<config>/todo-sync/` and
@@ -252,8 +287,8 @@ $ echo $?
 ```
 
 An old list may belong to a session you mean to resume, so the table is a prompt for you to decide, not a list of
-things to delete. The `todos` folder is read here only until the skill stops looking there for a session's own list;
-both go out together.
+things to delete. This listing covers the old `todos` folder only while the skill still looks there for a session's
+own list; when that lookup goes, the listing stops covering it too.
 
 **Its tests:** [test_list_old_lists.py](test_list_old_lists.py) builds every case in a temporary folder, with `HOME`
 and `CLAUDE_CONFIG_DIR` pointed at it, so it never reads your config folder:
@@ -262,24 +297,43 @@ and `CLAUDE_CONFIG_DIR` pointed at it, so it never reads your config folder:
 python3 -I test_list_old_lists.py      # from this folder
 ```
 
-Run on 2026-11-24 with Python 3 on macOS: 25 tests passed. Each of 25 deliberate breaks of the script made at least
-one test fail:
-- the age comparison reversed; a different default for `--days`; days counted in hours; a negative `--days` accepted;
-  `--days=N` not accepted;
-- the `todo-sync` folder skipped; the `todos` folder skipped; `CLAUDE_CONFIG_DIR` ignored; a different default
-  folder;
-- names not required to be a session id; the session-id match not anchored; a subfolder named like a list counted; a
-  symlinked initiative folder followed;
-- the open-checkbox pattern matching any bracket, not allowing indentation, or matching mid-line;
-- the sort reversed; the sort by session id;
-- exit 3 for a bad argument; exit 1 for an unreadable folder; an unreadable folder reported with exit 0; exit 5 after
-  a normal run;
-- the singular wording for one list dropped;
-- a write to a list's modification time; a file created in the list folder.
+25 tests pass (run on 2026-11-24, macOS, Python 3). Each of 25 deliberate breaks of the script made at least one test
+fail. The tests that make a folder unreadable are skipped when run as root, which can read anything.
 
-The tests that make a folder unreadable are skipped when run as root, which can read anything.
+<details>
+<summary>The 25 deliberate breaks</summary>
+
+- the age comparison reversed
+- a different default for `--days`
+- days counted in hours
+- a negative `--days` accepted
+- `--days=N` not accepted
+- the `todo-sync` folder skipped
+- the `todos` folder skipped
+- `CLAUDE_CONFIG_DIR` ignored
+- a different default folder
+- names not required to be a session id
+- the session-id match not anchored
+- a subfolder named like a list counted
+- a symlinked initiative folder followed
+- the open-checkbox pattern matching any bracket
+- the open-checkbox pattern not allowing indentation
+- the open-checkbox pattern matching mid-line
+- the sort reversed
+- the sort by session id
+- exit 3 for a bad argument
+- exit 1 for an unreadable folder
+- an unreadable folder reported with exit 0
+- exit 5 after a normal run
+- the singular wording for one list dropped
+- a write to a list's modification time
+- a file created in the list folder
+
+</details>
 
 ## Errors and what you see
+
+**`check-todos-folder.py`:**
 
 | What happens | Exit | What you see | What to do |
 | --- | --- | --- | --- |

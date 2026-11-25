@@ -126,7 +126,7 @@ when a condition surprises you, or to see what a verifier refuted.
 
 After changing the target for REVISE or STOP:
 
-1. Commit the change.
+1. Commit the change if you can, so the run pins a commit. An uncommitted target is reviewed as it is on disk.
 2. Run `/crossfire <same target>` with no other arguments. The summary beside the target tells the orchestrator
    which round this is.
 3. The new round checks the open conditions and the changed sections. It does not review the whole target again.
@@ -162,7 +162,7 @@ round with a blocker still open escalates rather than going round again.
 | The Run line says the read-only limit was in the prompt only | The agent definitions are not in `~/.claude/agents/` | Copy `crossfire-reviewer.md` and `crossfire-verifier.md` from the skill's agents folder there, and start a new session |
 | It stops at once with one line | The target is missing or unreadable | Check the path from the repo root, or the PR number and `gh auth status` |
 | Every run is STOP | The plan lacks facts reviewers need (sizes, traffic, who uses it) | Put the facts in the plan. That is the run working, not failing |
-| Many minor findings, nothing blocks | The plan holds up, and the reviewers filled their space | Read the Verdict and the blocking column; skim the rest |
+| Many minor findings, nothing blocks | The plan holds up, and the reviewers still reported minor points up to their limit of findings | Read the Verdict and the blocking column; skim the rest |
 | A run takes much longer than the examples | A large target, deep depth, or many blocking-grade findings to verify | Check the depth line; split a very large plan into parts |
 | INCOMPLETE | A reviewer or verifier errored twice, often a provider hiccup | Run again; if one seat keeps failing, its draft file shows why |
 
@@ -176,4 +176,4 @@ Real runs, each explained in its own README: the project, what was asked, what t
   two questions the example could not answer; round 2 adds the answers and passes.
 - [Report scheduling](examples/report-scheduling/README.md): a whether-mode decision among three options.
 - [Self-review](examples/self-review/README.md): crossfire reviewing its own README, at standard depth: REVISE,
-  with four verified blockers, each fixed before this skill shipped.
+  with four verified blockers, each of which was then fixed in the README.

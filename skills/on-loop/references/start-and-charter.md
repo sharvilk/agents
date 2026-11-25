@@ -1,11 +1,11 @@
 # Starting the loop: the gates, the charter and arming
 
-"start the on-loop" over this skill's own PAUSED marker means resume, with no gates and no new charter; over its own
-ARMED marker, one line: already running.
+Read when the user says one of the start phrases ("start the on-loop", "work the roadmap continuously", "always-on
+mode"). It starts only on those phrases. Looser words ("keep going", "carry on") never arm it: ask whether the user
+wants the on-loop and wait for the phrase. Over this skill's own PAUSED marker, "start the on-loop" means resume, with
+no gates and no new charter; over its own ARMED marker it gets one line: already running.
 
-Read by the start phrases ("start the on-loop", "work the roadmap continuously", "always-on mode"). It starts only
-on those phrases. Looser words ("keep going", "carry on") never arm it: ask whether the user wants the on-loop and
-wait for the phrase. Every time written (the state line, the claim, a heading) is built from `date +%Y-%m-%dT%H:%M%z` in the same command
+Every time written (the state line, the claim, a heading) is built from `date +%Y-%m-%dT%H:%M%z` in the same command
 that writes it, so a later tick can compare it with another; never type or estimate one.
 
 ```
@@ -73,7 +73,8 @@ The loop can never change the charter or a limit: only the user's own quoted wor
 
 **Permission check, while the user is present.** The todo list and the claim live outside the project folder, so a
 read or write there can raise a permission panel, and a tick stuck behind a panel waits until it is answered
-(measured; see the README's "Unverified behaviour"). So this gate does one read and one write of the todo list and of the claim file now. If a panel appears,
+(measured; see "What was tested, and what was not" in this skill's README.md). So this gate does one read and one write of the
+todo list and of the claim file now. If a panel appears,
 ask the user to choose the option that keeps allowing that folder, and name the folder. Do not arm until both pass
 (or the claim write is refused, which means single-session, below).
 
@@ -90,7 +91,8 @@ already in `CronList` is not evidence the scheduler works.
 One on-loop per repo. The claim is a file named `on-loop-claim.json` in the repo's shared git folder
 (`git rev-parse --git-common-dir`), never committed, holding: session id, charter end date, job id, start time and
 last beat. Every write of the claim reads it first, writes the new content to a temp file beside it and renames that into
-place; it never opens the claim for writing in place (an in-place open empties the file if the write fails). A claim written as `released <time>`, or one that has expired, is free. If one exists whose charter end
+place; it never opens the claim for writing in place (an in-place open empties the file if the write fails). A claim
+written as `released <time>`, or one that has expired, is free. If one exists whose charter end
 date equals this session's marker, it is this charter's own (a session resumed after a checkpoint): adopt it and
 write the new session id. Any other: say whose it is and stop. A claim whose last beat is more than 2 hours old is
 reported as stale; taking it over needs the user's word. Renew, resume and every re-arm update the claim's charter
@@ -104,7 +106,8 @@ writing it is refused, say so in one line and continue single-session: no claim,
    charter instead of creating a second (`CronList`; a session holds up to 50 tasks).
 2. **Only if it succeeded**, write the todo file's top blocks (below), with the marker ARMED and the job id, and
    write the claim. If it failed, write nothing (or ENDED with the reason), write no claim, and tell the user.
-3. Tell the user by **filling this template**, every line present, none dropped:
+3. Tell the user by **filling this template**, every line present, none dropped. The last four lines (`/bg`, "Exit
+   and stop tasks", `claude stop` and Esc or Ctrl+C) have no placeholders: copy them as they stand.
 
 ```text
 On-loop armed.

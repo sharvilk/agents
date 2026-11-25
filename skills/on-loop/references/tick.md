@@ -21,7 +21,8 @@ message`. Anything else is the user, and the first thing done for it is to write
      its charter without the user's word.
    - **Renewal:** on day 5 and day 6 of the charter, ask for renewal in the report. The user says "renew the loop":
      re-read the roadmap, show any change to the charter, record the new end time (7 days from the renewal), rewrite
-     the marker's date, and re-arm (the beats, the one tick prompt and the order are in SKILL.md section 5). Recommend a fresh session at a renewal (`checkpoint`, then resume).
+     the marker's date, and re-arm (the beats, the one tick prompt and the order are in SKILL.md section 5). Recommend a fresh session at a renewal
+     (`checkpoint`, then resume).
    - **Re-arm** when the recorded creation time is more than 6 days ago, at a renewal, and to change speed, as
      SKILL.md section 5 says (create, record, delete the old job, `CronList` shows exactly one on-loop job, update
      the claim). If `CronCreate` fails, keep the old job and write "wake-up ends when the old job
@@ -49,7 +50,7 @@ message`. Anything else is the user, and the first thing done for it is to write
    1. finish what is in flight before starting anything (the charter's in-flight line, default two items: a pacing
       limit, never a cap on PRs waiting for the user);
    2. then the roadmap's own order or priority, never the loop's taste;
-   3. skip items that are not ready, wait on an unanswered question or a queued decision, or are claimed (an
+   3. skip items that are not ready, that wait on an unanswered question or a queued decision, or that are claimed (an
       assignee, another branch or PR touching it, the user saying "I'm on that"). **An unmerged PR does not block**:
       the next item may stack on it;
    4. skip items whose files the user or another session is changing right now;
@@ -79,12 +80,13 @@ message`. Anything else is the user, and the first thing done for it is to write
     minutes), by the re-arm in SKILL.md section 5, plus a background watcher that exits on the CI or PR state
     (never a foreground `sleep`). When work is available again, switch back.
 14. **Update the state line and the claim:** last beat (in both), counters, last full report, every time from `date`
-    in the writing command. Write the claim by reading it, writing a temp file beside it and renaming that into
-    place, never opening it in place. A refused claim write is one line, then single-session without a claim.
+    in the writing command. Every write of the claim reads it first, writes the new content to a temp file beside it
+    and renames that into place; it never opens the claim for writing in place. If writing it is refused, say so in
+    one line and continue single-session: no claim.
 
 **A tick stuck behind a permission panel** runs nothing until the user answers it; the gap rule then reports the
 missed beats. The start gate's read and write check is there to surface that panel while the user is present.
 
 **A tick never asks a modal question.** An `AskUserQuestion` stays open until answered, and a tick due meanwhile
-waits and runs right after the turn ends (measured; see the README's "Unverified behaviour"), so a panel on a tick would only freeze the loop. Questions
+waits and runs right after the turn ends (measured; see "What was tested, and what was not" in this skill's README.md), so a panel on a tick would only freeze the loop. Questions
 (verdicts, renewal) are asked only in a turn the user started, with the digest read first.

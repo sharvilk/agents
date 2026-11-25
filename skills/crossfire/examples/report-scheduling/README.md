@@ -43,7 +43,7 @@ small. Two traps were planted for any option that uses the queue:
 
 ## The run
 
-`/crossfire docs/questions/report-scheduling.md whether`, on 2026-11-12, with the first version of the skill.
+`/crossfire docs/questions/report-scheduling.md whether`, on 2026-11-12, with the [first version](../README.md#versions) of the skill.
 
 ```
  depth: STANDARD (picked: the options would add runtime code, a queue worker or a fan-out job)
@@ -103,7 +103,7 @@ and both are real: the re-send after a server is replaced (C2) and the missing a
 
 - **Whether-mode works.** It compared all three options, recommended one with conditions, and said why the others
   lost.
-- **The sealed first view earns its place.** It shows the panel changed the recommendation, not just restated it.
+- **The recorded first view earns its place.** It shows the panel changed the recommendation, not just restated it.
 - **It found what was not planted.** The wrong-day retry after midnight and the missing alert were real.
 - **The chair needed a stricter format.** It wrote "if Q1 is one per process" in a cell a script reads. The chair's
   brief now fixes each cell to one value.

@@ -4,7 +4,7 @@ Read at tick steps 1 and 7. Every default is a line in the charter the user can 
 At a limit it does one of three things:
 
 ```
- QUIET   start no new item; keep open PRs green; answer review comments; heartbeat 60 minutes
+ QUIET   start no new item; keep open PRs green; answer review comments; quiet beat (60 minutes)
  PARK    leave one item alone, queued with diagnostics; move to the next
  STOP    wind down (wind-down.md). Only the user restarts it.
 ```
@@ -34,7 +34,7 @@ those that say the loop itself is lost (no progress, the same failure, parked it
 written before the first commit; the roadmap re-read on every tick with its commit recorded; no drive-by refactor,
 upgrade or cleanup (a good idea becomes a proposal); a second opinion on "done"; a fresh start at each renewal.
 
-**The drift table**, in every full report. **A stop-and-ask** for a non-zero row means: start no new step on the
+**The drift table** goes in every full report. A non-zero row means stop and ask: start no new step on the
 affected item, queue a class C entry naming the row and what was found, and carry on with other items.
 
 ```text
@@ -80,7 +80,7 @@ New for this loop:
 
 - It does not run while Claude Code is not running, or after the session exits; it says so before arming.
 - It does not merge, publish, delete, deploy, spend or change settings.
-- No hook ships in version 1; one is added later only if real use shows a slip, as a settings change on the user's go.
+- It ships no hook. One is added only if real use shows a slip, and then as a settings change on the user's go.
 - It does not read plan usage, notify outside the session, invent roadmap work or rewrite the roadmap's text, order
-  or checks, run crossfire or any eval, or widen what the user approved.
+  or checks, run `crossfire` (a separate skill) or any eval, or widen what the user approved.
 - It does not replace the project's own trackers; it points the user at them.

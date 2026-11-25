@@ -4,10 +4,30 @@
 you step away, writes down exactly where everything stands, and tells you in a few lines whether it is safe to go.
 When you come back and say "continue", the agent picks the work up from that record and keeps working.
 
+## Install
+
+As a plugin, from the `agents` marketplace:
+
+```
+/plugin marketplace add sharvilk/agents
+/plugin install checkpoint@agents
+```
+
+That also installs `todo-sync`, because the plugin declares it as a dependency.
+
+Or copy the `checkpoint` and `todo-sync` folders to `~/.claude/skills/` (or `$CLAUDE_CONFIG_DIR/skills/`). Nothing
+needs registering: Claude Code finds each skill by the `name` and `description` at the top of its `SKILL.md`. Start a
+new session afterwards so the skills are loaded. To check it loaded, type `/checkpoint` (or `/checkpoint:checkpoint`
+if another command already uses that name) in a session.
+
+**Use.** Type `/checkpoint`, or say "save progress" or "is it safe to restart". After the restart, say "continue"
+(or "resume", "carry on", "I'm back"), in the same session or a new one.
+
 ## Table of contents
 
 - [Why it exists](#why-it-exists)
 - [What a restart keeps and loses](#what-a-restart-keeps-and-loses)
+- [Working with a loop skill](#working-with-a-loop-skill)
 - [The flow](#the-flow)
 - [What you see](#what-you-see)
 - [The scan](#the-scan)
@@ -16,7 +36,6 @@ When you come back and say "continue", the agent picks the work up from that rec
 - [Limits](#limits)
 - [Tests](#tests)
 - [Files](#files)
-- [Install](#install)
 
 ## Why it exists
 
@@ -27,8 +46,6 @@ reported done, and the machine slows until a person notices. Without this skill,
 by hand: stop every agent, read every worktree's state, sweep for leftover processes, write a resume plan. This skill
 is that procedure, written down, with a script for the parts that should never depend on memory.
 
-If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill, every checkpoint trigger stays checkpoint's. A restart or a quit deletes that loop's job first and rewrites the marker as PAUSED with `reason checkpoint`; a break leaves the job and marker alone. A "Resume here" block is resumed first, and only a marker PAUSED with `reason checkpoint` is re-armed, by invoking the owner skill and running its "resume the loop" step (the charter's clock is kept). A marker PAUSED with `reason user` is left alone. Otherwise the phrases on the heading's `Answers:` line go to that loop. (In this repo, `on-loop` is the skill that writes that heading.)
-
 ## What a restart keeps and loses
 
 ```
@@ -36,11 +53,25 @@ If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSE
  ─────────────────────────────────           ────────────────────────────────────────────────
  worktrees, commits, uncommitted edits       running subagents, and whatever they had not reported
  todo lists, notes, session transcripts      background jobs: tests, benchmarks, watchers, servers
- the pushed branches and open PRs            the session scratchpad (a temporary folder, emptied at boot)
+ the pushed branches and open PRs            the session scratchpad (temporary, emptied at boot)
 ```
 
 So the checkpoint does not copy files. It stops running work at a safe point, records the state that lived in it,
 pushes what is committed, rescues the scratchpad, and removes leftover processes.
+
+## Working with a loop skill
+
+Another skill can run a background loop and mark the session's todo list with a `## Loop state:` heading (ARMED or
+PAUSED) that names the skill as its owner. Checkpoint then pauses that loop before a restart and re-arms it on resume.
+In this repo, `on-loop` is the skill that writes that heading.
+
+- Every checkpoint trigger stays checkpoint's, whatever the loop's state.
+- A restart or a quit deletes the loop's job first and rewrites the marker as PAUSED with `reason checkpoint`. A break
+  (you step away, but the machine and the app keep running) leaves the job and the marker alone.
+- On resume, a "Resume here" block is resumed first. Only a marker PAUSED with `reason checkpoint` is re-armed, by
+  invoking the owner skill and running its "resume the loop" step, which keeps the loop's charter clock. A marker
+  PAUSED with `reason user` is left alone.
+- With no resume block, the phrases on the heading's `Answers:` line go to that loop.
 
 ## The flow
 
@@ -51,15 +82,17 @@ pushes what is committed, rescues the scratchpad, and removes leftover processes
   1 inventory ── checkpoint-scan.py: machine · worktrees · processes in the repos
         │        + what the agent knows: its subagents, its background jobs, its scratch files
         ▼
-  2 safe point ── each subagent: "commit what is done, push, stop your processes, report" → then stopped
-        │         each background job: stopped · a benchmark: stopped, marked "re-run"
+  2 safe point ── each subagent: "commit what is done, push, stop your processes, report",
+        │         then stopped · each background job: stopped · a benchmark: stopped, "re-run"
         ▼
-  3 push ──────── committed work on this session's feature branches (hooks run; never main, never forced)
+  3 push ──────── committed work on this session's feature branches
+        │         (hooks run; never main, never forced)
         │         uncommitted edits stay on disk and are listed
         ▼
   4 rescue ────── scratchpad files that later work needs → a gitignored folder in the main checkout
         ▼
-  5 record ────── the "Resume here" block at the top of the session's todo list (+ the project tracker)
+  5 record ────── the "Resume here" block at the top of the session's todo list
+        │         (+ the project tracker)
         ▼
   6 sweep ─────── the scan again; strays this session started are stopped; others are listed
         ▼
@@ -69,8 +102,9 @@ pushes what is committed, rescues the scratchpad, and removes leftover processes
         │
   you: continue
         ▼
-  resume ──────── find the block · re-check the machine · re-verify each item from git, the PR and CI
-                  · one line on what resumes · then the work itself, in the block's order
+  resume ──────── find the block · re-check the machine · re-verify each item from git,
+                  the PR and CI · one line on what resumes · then the work itself, in the
+                  block's order
 ```
 
 ### Finding the block when you resume
@@ -81,21 +115,23 @@ it remembers from the conversation, because a list can have moved. A new session
 it asks:
 
 ```
- same session                                new session (after a restart)
- ─────────────────────────────────           ───────────────────────────────────────────────────────
- find  <session-id>.md in the list folders    list every  "## Resume here"  block in  both list folders
-        │                                      │   session id (short) · initiative folder
-        ▼                                      │   checkpoint time and reason · first in-flight item
- continue from that block                      ▼
-                                             ask you which one to continue  (never the newest by itself:
-                                             other sessions, even ones for unrelated work, keep lists here)
-                                               │
-                                               ▼
-                                             your answer is the takeover: that session's list is now this
-                                             session's, and that session should not be resumed elsewhere
-                                               │
-                                               ▼
-                                             keep writing that file (not a copy) and carry on
+ same session                        new session (after a restart)
+ ──────────────────────────          ────────────────────────────────────────────────────
+ find <session-id>.md in             list every "## Resume here" block in both list folders
+ the list folders                      │   session id (short) · initiative folder
+        │                              │   checkpoint time and reason · first in-flight item
+        ▼                              ▼
+ continue from that block            ask you which one to continue (never the newest by
+                                     itself: other sessions, even ones for unrelated work,
+                                     keep lists here)
+                                       │
+                                       ▼
+                                     your answer is the takeover: that session's list is now
+                                     this session's, and that session should not be resumed
+                                     elsewhere
+                                       │
+                                       ▼
+                                     keep writing that file (not a copy) and carry on
 ```
 
 Lists started before the list folder existed are found in `<config>/todos/` as well: the folder earlier versions of
@@ -111,8 +147,10 @@ The summary at the end of a checkpoint:
 Checkpoint (2026-10-21 12:45): safe to restart
 machine     disk 6.8 GiB free · load 4.9 · swap 11.8 of 13.3 GB
 running     0 processes of ours · agents stopped: 3
-saved       9 worktrees clean and pushed · uncommitted: none · not mine: 2 worktrees of another session
-in flight   export fix (PR for fix/csv-escape): figures committed → next: README and a test (brief in notes/brief-fix-round.md)
+saved       9 worktrees clean and pushed · uncommitted: none · not mine: 2 worktrees of another
+            session
+in flight   export fix (PR for fix/csv-escape): figures committed → next: README and a test
+            (brief in notes/brief-fix-round.md)
             import fix (PR for fix/import-dates): fix round pushed → next: verdict on its findings
 waiting     the gate decision (recommendation: one more benchmark round)
 resume      say "continue"; the plan is in ~/.claude/todo-sync/billing/<session-id>.md
@@ -129,8 +167,8 @@ worktrees itself.
 python3 ~/.claude/skills/checkpoint/checkpoint-scan.py ~/code/project-a ~/code/project-b
 ```
 
-The path is the copy install's. A plugin install keeps the script elsewhere; the agent runs it from the skill's own
-folder, so you never type the path.
+This path is for a copy install (with `$CLAUDE_CONFIG_DIR` set, the folder is `$CLAUDE_CONFIG_DIR/skills/checkpoint/`). A
+plugin install keeps the script elsewhere; the agent runs it from the skill's own folder, so you never type the path.
 
 ```
 ## Machine
@@ -148,13 +186,19 @@ swap        total = 13312.00M  used = 11786.75M  free = 1525.25M  (encrypted)
   pid 65023   ppid 64785   age 08:55:16     cpu 100.0%      4 MB  node             /Users/me/code/project-a/.worktrees/feature-x
 ```
 
-- **Worktree notes:** `n uncommitted`, `n unpushed`, `n behind its remote`, `merge in progress` (or rebase,
-  cherry, revert), `no remote branch`, `no remote`, `n commit(s) on no remote`, `git status failed` (for a worktree whose folder is gone or unreadable), or
-  `clean, pushed`. A detached worktree is not compared with a remote. A branch with no upstream setting is compared
-  with `origin/<branch>` when that exists. When neither exists, the repo's remotes decide the note: none at all gives
-  `no remote`; otherwise commits reachable from no remote-tracking branch give `n commit(s) on no remote`, and a
-  branch with none of its own gives `no remote branch`. The repo's stash count is shown once, because every worktree shares one
-  stash.
+This is real output, and its worktree and process rows are wider than most screens, so it scrolls sideways.
+
+- **Worktree notes**, one or more per row:
+  - `n uncommitted`, `n unpushed`, `n behind its remote`;
+  - `merge in progress` (or rebase, cherry, revert);
+  - `no remote branch`, `no remote`, `n commit(s) on no remote`;
+  - `git status failed` (the worktree's folder is gone or unreadable);
+  - `clean, pushed`.
+- **How the remote is chosen.** A detached worktree is not compared with a remote. A branch with no upstream setting is
+  compared with `origin/<branch>` when that exists. When neither exists, the repo's remotes decide the note: none at
+  all gives `no remote`; otherwise commits reachable from no remote-tracking branch give `n commit(s) on no remote`,
+  and a branch with none of its own gives `no remote branch`. The repo's stash count is shown once, because every
+  worktree shares one stash.
 - **Processes:** every process whose working directory is inside the repos or their worktrees, except the scan itself
   and its own pipeline. It never prints a command line or an environment, which can carry secrets.
 - **Exit codes:** 0 nothing to deal with; 1 something listed needs a decision (a dirty, unpushed or behind worktree, a
@@ -174,8 +218,8 @@ A hook that saves progress "on quit" would be the obvious design, and it does no
 - Nothing documents it running when the editor window closes or the machine restarts, so a checkpoint that depends on
   it would fail silently exactly when it matters.
 
-A `SessionStart` hook that prints the scan on every start was considered and left out: the skill's resume step already
-runs the scan, and a hook would put its output into every session's context whether or not anything was interrupted.
+There is no `SessionStart` hook that prints the scan on every start: it would put the scan's output into every
+session's context whether or not anything was interrupted, and the skill's resume step already runs the scan.
 
 ## Errors and what you see
 
@@ -227,8 +271,11 @@ directory inside a repo. The disk, swap and `/proc` cases load the script as a m
 python3 -I test_checkpoint_scan.py      # from this folder; takes under a minute
 ```
 
-Run on 2026-11-22 with Python 3 on macOS: 52 tests passed. Each of forty-three deliberate breaks of the script made at least one
-test fail:
+52 tests pass (run on 2026-11-22, macOS, Python 3). Each of 43 deliberate breaks of the script made at least one test
+fail, in these groups:
+
+<details>
+<summary>The 43 deliberate breaks</summary>
 
 - Disk: the floor tested with `<=` instead of `<`; no warning set for low disk.
 - Exit codes: the exit-2 check ranked below the exit-1 check; a path that is not a repo never failing the run; findings
@@ -247,28 +294,15 @@ test fail:
 - Other: swap read on every platform; no `none` line when nothing is found; `realpath` replaced by `abspath` for the
   roots.
 
+</details>
+
 The tests are skipped when the machine itself has under 5 GiB free, because the scan then exits 1 by design.
 
 ## Files
 
 | File | What it is |
 | --- | --- |
-| `SKILL.md` | The procedure the agent follows: the seven checkpoint steps, the resume steps, the resume block's shape, the traps, and what to do when a step cannot conclude. |
-| `checkpoint-scan.py` | The read-only inventory: machine, worktrees, processes. |
-| `test_checkpoint_scan.py` | Its tests. |
-| `README.md` | This page. |
-
-## Install
-
-As a plugin, from the `agents` marketplace:
-
-```
-/plugin marketplace add sharvilk/agents
-/plugin install checkpoint@agents
-```
-
-That also installs `todo-sync`, because the plugin declares it as a dependency.
-
-Or copy the `checkpoint` and `todo-sync` folders to `~/.claude/skills/`. Nothing needs registering: Claude Code finds
-each skill by the `name` and `description` at the top of its `SKILL.md`. To check it loaded, type `/checkpoint` (or
-`/checkpoint:checkpoint` if another command already uses that name) in a session.
+| [SKILL.md](SKILL.md) | the procedure the agent follows: the seven checkpoint steps, the resume steps, the resume block's shape, the traps, and what to do when a step cannot conclude |
+| [checkpoint-scan.py](checkpoint-scan.py) | the read-only inventory: machine, worktrees, processes |
+| [test_checkpoint_scan.py](test_checkpoint_scan.py) | its tests |
+| README.md | this page |

@@ -13,8 +13,8 @@ directly, so a change made here would be overwritten by the next publish.
   skill and version (the version is in `.claude-plugin/marketplace.json`), what you did, what you expected, and
   what happened.
 - **Pull requests are read as proposals.** Open one if showing the change is the clearest way to explain it. I read
-  it, re-make the change at the source, publish it in a later update, and credit you in the pull request that brings the change here. The
-  pull request itself is closed once that is done, because its commit is not the one that ships.
+  it and re-make the change at the source. It ships in a later update, and I credit you in the pull request that
+  brings it here. Your pull request is then closed, because its commit is not the one that ships.
 
 ## Before you open a pull request
 

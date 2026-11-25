@@ -40,35 +40,38 @@ the case's `output/` folder, which git ignores.
         ▼
  1 PREPARE   copy examples/<case>/repo ──▶ a new temporary folder
              git init + one commit, with fixed dates and no global or system git config
-             (round-2 cases: add round 1's summary and run folder, commit, lay the owner's answers on top, commit)
+             (round-2 cases: add round 1's summary and run folder, commit, lay the owner's
+             answers on top, commit)
              exclude .crossfire/ from git
         │
         ▼
- 1b STAGE    a minimal plugin in a second temporary folder, outside that repo:
+ 2 STAGE     a minimal plugin in a second temporary folder, outside that repo:
                .claude-plugin/plugin.json   {"name": "crossfire"}
                skills/crossfire/            SKILL.md and references/
                agents/                      crossfire-reviewer.md and crossfire-verifier.md
              (never README, PLAYBOOK, examples or evals: they describe the planted defects)
         │
         ▼
- 2 RUN       claude -p "/crossfire <target> <args>"
+ 3 RUN       claude -p "/crossfire <target> <args>"
                --plugin-dir <staged plugin>   the skill loads as a plugin, from the folder above
-               --setting-sources project      none of your own instructions, hooks or installed plugins
+               --setting-sources project      none of your instructions, hooks or installed plugins
                --strict-mcp-config            and none of your own MCP servers
                --model opus                   the main session's model, pinned (change with --model)
                --max-budget-usd 25            a spend cap (change with --max-budget-usd)
                --permission-mode acceptEdits  file edits inside the folder only
                --allowedTools Read Grep Glob Agent WebSearch WebFetch Bash(<read commands>)
-             time limit 40 min (--timeout-min); on timeout or Ctrl-C, TERM then KILL the whole process group
+             time limit 40 min (--timeout-min); on timeout or Ctrl-C, TERM then KILL the whole
+             process group
         │
         ▼
- 3 COLLECT   copy to examples/<case>/output (or --out DIR):
+ 4 COLLECT   copy to examples/<case>/output (or --out DIR):
                summary.crossfire.md   only if the run wrote a new one
                run/                   the run folder: frame, drafts, cross, verify, chair…
                metrics.json           time, cost, turns and models, from the session's own report
                score.json             score.py's result, or why it could not score
-             both temporary folders (the case repo and the staged plugin) are kept, and their paths printed;
-             the runner deletes neither
+             both temporary folders (the case repo and the staged plugin, `crossfire-plugin-*`) are
+             kept and their paths printed; the runner deletes neither, so remove them yourself
+             when you are done
 ```
 
 The Bash allowlist is a prefix list, not a sandbox: named git subcommands (`log`, `show`, `diff`, `status`,
@@ -76,18 +79,15 @@ The Bash allowlist is a prefix list, not a sandbox: named git subcommands (`log`
 still write outside the folder, and the read commands can read anything your user can. Anything else is denied, and
 reviewers fall back to Read, Grep and Glob.
 
+The run is hermetic: the answer keys are neither staged nor loaded by the session. That does not make them
+unreadable: the checkout stays readable by the agents' read tools, as the skill's README says.
+
 ## Run one
 
 ```bash
 cd <the skill folder>/evals
 python3 -I run.py password-reset --out /tmp/password-reset-rerun
 ```
-
-"Hermetic" means the answer keys are neither staged nor loaded by the session, not that they are unreadable: the
-checkout stays readable by the agents' read tools, as the skill's README says.
-
-The runner keeps both temporary folders, the case repo copy and the staged plugin (`crossfire-plugin-*`), prints their
-paths, and deletes neither; remove them yourself when you are done.
 
 It refuses to overwrite an existing output folder, so pass `--out` when the case already has a recorded one. It
 prints a JSON summary at the end: the output folder, both temporary folders, the exit code, whether it timed out,
@@ -101,8 +101,9 @@ run `help-page-copy` first; its own default output folder is `output-round2/`.
 
 ```
 "password-reset": {
-  "target": "docs/plans/password-reset.md",        the path /crossfire is given, inside the case's repo
-  "args": "",                                        anything after the target: a depth, "whether", "+lens"
+  "target": "docs/plans/password-reset.md",        the path /crossfire is given, in the case's repo
+  "args": "",                                      anything after the target: a depth, "whether",
+                                                   "+lens"
   "summary": "docs/plans/password-reset.crossfire.md", where the run writes its summary
   "expect_gate": ["REVISE", "STOP"],                 the gates that count as right
   "max_blockers": null,                              a ceiling on blocking rows; 0 for a clean case
@@ -128,9 +129,9 @@ base case's repo plus that folder.
 | `report-scheduling` | a whether-decision among three options, with two planted traps | that whether-mode surfaces both and recommends an option |
 
 Two notes on these keys:
-- `help-page-copy` was written as a clean control expected to PASS in one round. Its first run stopped, rightly,
-  because the example lacked facts the plan relied on, and the key was then changed to expect STOP for round 1 and
-  PASS for round 2. The change was made after seeing the result, so its "expected gate" is not a prediction.
+- `help-page-copy` expects STOP in round 1 and PASS in round 2, because the example lacks facts the plan relies
+  on. The key was first written to expect PASS in one round and was set to its current value after round 1's
+  result was seen, so its "expected gate" is not a prediction.
 - `report-scheduling` accepts REVISE, STOP or PASS, so its gate check says nothing; the case is about the two
   defects being surfaced.
 
@@ -170,7 +171,8 @@ python3 -I test_run.py       # 7 tests
 pipes; Windows line endings), matching (word starts, the matched columns, every group, `must_block`), the counts,
 and every exit code.
 
-`test_run.py` runs the setup step for real, with git only, and builds the session's command line without running it. It checks:
+`test_run.py` runs the setup step for real, with git only, and builds the session's command line without running
+it. It checks:
 - the staged plugin has the manifest, `SKILL.md`, `references/` and the two agent files, and nothing else: no
   README, playbook, examples or evals;
 - no staged file mentions any case's target, defect ids or answer keys;
@@ -181,7 +183,16 @@ and every exit code.
 - a second round seeds a first round's summary and the owner's answers (from a stand-in first round, so the test
   needs no paid run).
 
-On 2026-11-24 all 22 `test_score.py` tests and all 7 `test_run.py` tests passed (29 in all). Earlier, on 2026-11-20, 26 tests had passed, before the runner staged a plugin. The deliberate breaks made to `score.py` and `run.py`, and when each was run, are listed in the skill's README, under [Tests of the eval tools](../README.md#tests-of-the-eval-tools).
+All 22 `test_score.py` tests and all 7 `test_run.py` tests pass (29 in all; run on 2026-11-24). The deliberate breaks
+made to `score.py` and `run.py`, and when each was run, are listed in the skill's README, under
+[Tests of the eval tools](../README.md#tests-of-the-eval-tools).
+
+<details>
+<summary>Earlier test run</summary>
+
+On 2026-11-20, 26 tests passed, before the runner staged a plugin.
+
+</details>
 
 ## Add a case
 
@@ -190,7 +201,8 @@ On 2026-11-24 all 22 `test_score.py` tests and all 7 `test_run.py` tests passed 
    test the evidence rules; defects only in the plan's prose do not.
 2. Add the case to `cases.json`. Pick phrases a reviewer would actually use, several per group, and run the scorer
    against a hand-written row to check they match only what they should.
-3. Run `python3 -I test_run.py`: it fails if any file of the staged plugin mentions the new case's target or defect ids.
+3. Run `python3 -I test_run.py`: it fails if any file of the staged plugin mentions the new case's target or
+   defect ids.
 4. Run `python3 -I run.py <case>`, read the summary and the run folder, and write the example's README: the
    project, what was planted, what the run found and cost, and what it taught. Add a row to
    `../examples/README.md`.
@@ -221,5 +233,5 @@ reported; the deep case is the most expensive. `score.py` and the tests cost not
 - Phrase matching is crude. It misses a defect described in words the key does not list, and can credit a row that
   uses the phrases while saying something else. Read the rows when a number surprises you.
 - One run per case is a sample, not an average. Model output varies between runs.
-- The recorded runs predate the hermetic runner and the review fixes; see the skill README's
+- The recorded runs were made before the hermetic runner and the review fixes; see the skill README's
   [Not yet measured](../README.md#not-yet-measured).

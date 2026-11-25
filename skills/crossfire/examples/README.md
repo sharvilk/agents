@@ -1,8 +1,9 @@
 # crossfire examples
 
-Four real runs of `/crossfire`, each explained in its own README: what the project was, what was asked, what the
-panel found, how it scored, what it cost, and what it taught us. Three are made-up projects with defects planted on
-purpose, which double as the [eval](../evals/README.md) cases. The fourth is crossfire reviewing its own README.
+Four examples of `/crossfire`, five real runs in all (the help page has two rounds). Each is explained in its own
+README: what the project was, what was asked, what the panel found, how it scored, what it cost, and what it taught
+us. Three are made-up projects with defects planted on purpose, which double as the [eval](../evals/README.md)
+cases. The fourth is crossfire reviewing its own README.
 
 ## Table of contents
 
@@ -26,28 +27,28 @@ bill. Each run is one sample, not an average.
 
 ## Versions
 
-The skill changed while these runs were made, and each README says which version it used:
-- **First version** (password reset, report scheduling, help page round 1): one file per reply, no merge step, no
-  verifier cap.
-- **Second version** (help page round 2, the self-review): duplicates merged before verification, verifiers capped
-  by depth, one file per stage.
-- **Current version:** the second, plus the fixes from the skill's own reviews. Nothing is written to disk until
-  the run ends; a `From` column traces each condition to its findings, and the chair's table is reconciled with the
-  verdicts; rounds diff against a saved copy of the target. It has not yet been run end to end.
+Each example README names the version of the skill that made its run, and links here:
+- **First version** (password reset, report scheduling, help page round 1): writes one file per reply, has no merge
+  step and no verifier cap.
+- **Second version** (help page round 2, the self-review): merges duplicates before verification, caps verifiers by
+  depth, and writes one file per stage.
+- **Current version:** the second, plus the fixes from the skill's own reviews. It writes nothing to disk until the
+  run ends; a `From` column traces each condition to its findings; the chair's table is reconciled with the
+  verdicts; and rounds diff against a saved copy of the target. No run has used it end to end yet.
 
 ## What these runs changed in the skill
 
-Each first-round run exposed something, and the skill now handles it:
+What each problem the runs exposed means for the skill today:
 
-| Run showed | Fix |
+| Run showed | The skill now |
 | --- | --- |
-| Help page: four findings named the same missing renderer, and five Opus verifiers ran on a two-line change | findings that share a root cause are merged before verification and verified once |
-| Password reset: 16 Opus verifiers for 47 findings; most of the $16.55 was Opus | verifiers are capped at 2, 4 or 8 by depth, with related findings batched, never dropped |
-| Password reset: 149 orchestrator turns, with one file written per reply and per finding | one write per stage, all at the end of the run |
-| Help page and report: the chair wrote conditional text in cells a script reads | the chair's brief fixes each cell to one value |
-| Password reset: plaintext token storage verified at minor | the security lens names stored credentials readable from a database, replica or backup as blocking-grade (not yet re-run) |
-| Help page: the final process listing needed a permission it did not have, and checked nothing | the run confirms every agent returned, and lists no processes |
-| Self-review: four blockers in the README's own claims | fixed; see [the self-review](self-review/README.md) |
+| Help page: four findings named the same missing renderer, and five Opus verifiers ran on a two-line change | merges findings that share a root cause before verification and verifies each once |
+| Password reset: 16 Opus verifiers for 47 findings; most of the $16.55 was Opus | caps verifiers at 2, 4 or 8 by depth, batching related findings and never dropping any |
+| Password reset: 149 orchestrator turns, with one file written per reply and per finding | writes one file per stage, all at the end of the run |
+| Help page and report: the chair wrote conditional text in cells a script reads | fixes each cell of the chair's table to one value in the chair's brief |
+| Password reset: plaintext token storage verified at minor | names stored credentials readable from a database, replica or backup as blocking-grade in the security lens (not yet re-run) |
+| Help page: the final step listed running processes, which was not permitted and checked nothing | confirms every agent returned, and lists no processes |
+| Self-review: four blockers in the README's own claims | corrected each claim in the README; see [the self-review](self-review/README.md) |
 
 ## What is kept here
 

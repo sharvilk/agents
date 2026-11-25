@@ -3,11 +3,13 @@
 Read at steps 8 to 10 of a tick. The classes and the never list are in SKILL.md.
 
 ```
- on the never list ──────────────────────────────────────────► D  NEVER    queue the ask; do not do it
- undo NO, or reach NO, or one of the big kinds ──────────────► C  QUEUE    prepare options + a recommendation
- undo YES, reach YES, a real fork (2+ workable designs) ─────► B  DECIDE, FLAG   full entry: diagram + example
- undo YES, reach YES, the docs or code already imply it ─────► A  DECIDE, LOG    short entry
- not sure which class ───────────────────────────────────────► one class UP (A to B, B to C)
+ on the never list ─────────────────────────► D  NEVER          queue the ask; do not do it
+ undo NO, or reach NO, or a big kind ───────► C  QUEUE          prepare options + a recommendation
+ undo YES, reach YES, a real fork (2+
+   workable designs) ───────────────────────► B  DECIDE, FLAG   full entry: diagram + example
+ undo YES, reach YES, the docs or code
+   already imply it ────────────────────────► A  DECIDE, LOG    short entry
+ not sure which class ──────────────────────► one class UP (A to B, B to C)
 ```
 
 - **A examples:** an internal name; where a new test goes; the order of two steps; the wording of an error message;
@@ -50,11 +52,8 @@ until the user answers. Fallback when the project wants no such branch: a git-ig
 with the loss risk said out loud. Each work PR's body has a "Decisions in this PR" list with a line per entry and
 links into the ledger. The todo list holds only an index: id, class, status, link, one line.
 
-The entry format is in [ledger-entry.md](ledger-entry.md): write each entry by filling that file's template exactly,
-heading line included (the exact line is shown there), with its time from `date` run in the same command that writes
-it, never typed or estimated. Ids continue across charters and renewals: the next id is
-the highest in the ledger plus one (a `grep`, never memory). Counting is a `grep` for `· pending$`. Class C items are
-not decisions: they sit in "Waiting for you" as `C-n` with the same options-and-recommendation shape.
+Write each entry from the template in [ledger-entry.md](ledger-entry.md), which also gives the id, counting and time
+rules. Class C items are not decisions: they sit in "Waiting for you" as `C-n` with the same options-and-recommendation shape.
 
 **No new step starts until the ledger is pushed.** A push that fails leaves the entry in the working tree; the tick
 reports it and retries at the next tick, and starts no new step meanwhile.

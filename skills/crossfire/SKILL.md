@@ -16,6 +16,7 @@ The reasoning behind each step, the files it reads and writes, every outcome and
 
 ## Table of contents
 
+- [Terms](#terms)
 - [Arguments](#arguments)
 - [Agent types](#agent-types)
 - [0. Frame](#0-frame)
@@ -29,6 +30,22 @@ The reasoning behind each step, the files it reads and writes, every outcome and
 - [Re-runs](#re-runs)
 - [Traps](#traps)
 - [When the run cannot conclude](#when-the-run-cannot-conclude)
+
+## Terms
+
+- **Frame**: the decision asked, the mode, the asks, the done items and the repo rules, composed in step 0 from the
+  target and the owner's words. Every reviewer gets it.
+- **Seat**: one place on the panel, held by one reviewer agent: a lens or a stance.
+- **Lens**: a seat that follows a checklist, one file in [references/lenses/](references/lenses/).
+- **Stance**: a seat that argues from a position instead: the advocate or the pre-mortem
+  ([references/stances.md](references/stances.md)).
+- **Chair**: the agent that turns the verified findings into one decision, conditions and questions.
+- **Verifier**: an agent that tries to refute a finding by reproducing its evidence.
+- **Blocking-grade** finding: critical or major, and names what it protects. A **blocker** is one that a verifier
+  reproduced ([references/contract.md](references/contract.md#what-blocks)).
+- **Gate**: the outcome that [references/gate.md](references/gate.md#the-rule) assigns: PASS, REVISE, STOP,
+  ESCALATE or INCOMPLETE.
+- **First view**: your own three-line view, formed in step 0 and saved unchanged as `prior.md`.
 
 ## Arguments
 
@@ -103,7 +120,7 @@ become the summary's "Not checked" section.
 
 | Role | Model |
 | --- | --- |
-| lenses, advocate | `sonnet` (at deep depth, one lens on `fable`, for a second model's view) |
+| lenses, advocate | `sonnet` (at deep depth, one lens on `fable`, to add a second model's view) |
 | pre-mortem | `opus` |
 | cross-examiners | `sonnet`, whichever seat they stand in for |
 | verifiers, chair | `opus` |
@@ -257,5 +274,5 @@ keeps its number and runs only the parts that failed.
   available) and say so in the Run line.
 
 Before telling the owner the run is done, confirm every agent you started has returned. The run starts no other
-processes. If an agent sends a second, unrequested reply, keep the reply to your own brief, save the other in the
-same stage file under a heading that says it was unrequested, and do not use it.
+processes. If an agent sends a second, unrequested reply, use only the reply that answers your brief. Save the
+other in the same stage file under a heading that says it was unrequested, and do not use it.

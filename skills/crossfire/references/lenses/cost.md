@@ -2,17 +2,9 @@
 
 Pasted in full into the brief of the reviewer that holds this seat.
 
-## Table of contents
-
-- [Seat this lens when](#seat-this-lens-when)
-- [Check](#check)
-- [Typical blocking-grade findings](#typical-blocking-grade-findings)
-- [Usually not blocking](#usually-not-blocking)
-- [Where to look](#where-to-look)
-
 ## Seat this lens when
 
-the target adds a paid service, a model or API call, storage that grows with use, a scheduled job, or egress, or changes how often something billable runs.
+The target adds a paid service, a model or API call, storage that grows with use, a scheduled job, or egress, or changes how often something billable runs.
 
 ## Check
 

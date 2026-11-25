@@ -12,17 +12,34 @@ committed is pushed, and leaves no process behind. Then it says, in a few lines,
 The resume block is written into the session's `todo-sync` list, so checkpoint needs the `todo-sync` skill installed
 too.
 
-**If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill** (the heading names the owner): every phrase in this skill's description stays yours in every state ("checkpoint", "save progress", "I'm going to restart", "before I restart", "before I quit", "stop everything safely", "is it safe to restart"). For a restart or a quit with the marker ARMED, delete the loop's job first, rewrite the marker as `## Loop state: PAUSED — <owner> — charter valid until <date> — reason checkpoint`, and put "resume the loop (owner <owner>, charter valid until <date>)" first in the resume block. A break (no restart, no quit) leaves the loop's job and marker alone; when it leaves an ARMED loop running, its summary names the loop from the marker and says "pause the loop" pauses it. When a "Resume here" block for this session exists, "continue", "resume", "carry on", "keep going" and "I'm back" are yours first: resume, and re-arm only a loop whose marker is PAUSED with `reason checkpoint`, by invoking the owner skill named in the heading and running that skill's "resume the loop" step, which keeps the charter's clock. A marker PAUSED with `reason user` gets no re-arm item and is left alone. With no resume block, those phrases go to the loop when its `Answers:` line lists them.
+**If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill** (the heading names the owner):
+
+- **Phrases:** every phrase in this skill's description stays yours in every state ("checkpoint", "save progress",
+  "I'm going to restart", "before I restart", "before I quit", "stop everything safely", "is it safe to restart").
+- **A restart or a quit with the marker ARMED:**
+  - delete the loop's job first;
+  - rewrite the marker as `## Loop state: PAUSED — <owner> — charter valid until <date> — reason checkpoint`;
+  - put "resume the loop (owner <owner>, charter valid until <date>)" first in the resume block.
+- **A break** (a stop where the machine and the app keep running: no restart, no quit) leaves the loop's job and
+  marker alone. When it leaves an ARMED loop running, its summary names the loop from the marker and says "pause the
+  loop" pauses it.
+- **Resuming, when a "Resume here" block for this session exists:** "continue", "resume", "carry on", "keep going"
+  and "I'm back" are yours first. Resume, and re-arm only a loop whose marker is PAUSED with `reason checkpoint`, by
+  invoking the owner skill named in the heading and running that skill's "resume the loop" step, which keeps the
+  charter's clock.
+- **A marker PAUSED with `reason user`** gets no re-arm item and is left alone.
+- **With no resume block,** those phrases go to the loop when its `Answers:` line lists them.
 
 ```
  SURVIVES a restart (disk)                  LOST in a restart
  worktrees, commits, uncommitted edits      running subagents and their unreported progress
  notes, todo lists, session transcripts     background jobs: test runs, benches, watchers, servers
-                                            the session scratchpad (a temporary folder, emptied at boot)
+                                            the session scratchpad (temporary, emptied at boot)
 ```
 
-So the checkpoint does not save files. It saves **state that lives only in running things and in your head**, and it
-removes processes that would otherwise run on after you leave (a benchmark's child process, for example, can keep a core busy for hours after its agent reported done).
+So the checkpoint does not save files. It saves **state that lives only in running things and in the session's memory**, and it
+removes processes that would otherwise run on after you leave (a benchmark's child process, for example, can keep a
+core busy for hours after its agent reported done).
 
 ## Contents
 
@@ -35,7 +52,8 @@ removes processes that would otherwise run on after you leave (a benchmark's chi
 
 ## Part 1: the checkpoint
 
-Start no new work. Do the steps in order; each reads before it acts.
+Start no new work. Do the steps in order; each reads before it acts. A **break** is a stop where the machine and the
+app keep running (the user is stepping away); a restart and a quit are the other two reasons for a checkpoint.
 
 **1. Inventory (read only).** Run the scan over every repo this session touched (main checkouts; it finds their
 worktrees itself):
@@ -107,7 +125,11 @@ When the user says "continue", "resume", "carry on" or "I'm back", or opens a se
      `${CLAUDE_CONFIG_DIR:-$HOME/.claude}` and the file is `<session-id>.md`, with the id from `${CLAUDE_SESSION_ID}`
      as `todo-sync` says. A lookup that works in zsh, where a glob with no match aborts the whole command, with your
      session id in place of `<session-id>`:
-     `find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todo-sync" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todos" -mindepth 2 -maxdepth 2 -name '<session-id>.md' 2>/dev/null`
+
+     ```bash
+     find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todo-sync" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todos" -mindepth 2 -maxdepth 2 -name '<session-id>.md' 2>/dev/null
+     ```
+
      It exits 1 when either folder does not exist yet; what it prints is the answer.
      - **It prints nothing:** this session has no list, so take the new-session path below.
      - **It prints two paths:** follow `todo-sync`'s rule for a list that is in both folders (the list folder's copy
@@ -118,7 +140,11 @@ When the user says "continue", "resume", "carry on" or "I'm back", or opens a se
        says (the directory above `scratchpad` in the scratchpad path, otherwise ask the user).
    - **A new session** lists every `## Resume here` block in both folders, with a `find` rather than a bare glob, for
      the same zsh reason:
-     `find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todo-sync" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todos" -mindepth 2 -maxdepth 2 -name '*.md' -exec grep -l '^## Resume here' {} + 2>/dev/null`
+
+     ```bash
+     find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todo-sync" "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/todos" -mindepth 2 -maxdepth 2 -name '*.md' -exec grep -l '^## Resume here' {} + 2>/dev/null
+     ```
+
      From each file it prints, read the `## Resume here (...)` heading line, which holds the checkpoint time and
      reason, and the first numbered line after `In flight, in order:`. The session id is the file's name and the
      initiative is its folder. Show the user one line per file (short session id, initiative, time and reason, first
@@ -180,7 +206,7 @@ the brief.
   last report; mark the item "state unknown: re-check the branch".
 - **A push fails** (a hook fails, the remote refuses, no network): leave the commit local, record it as unpushed with
   the error, and say "safe to restart" only if the user accepts that it is unpushed (the disk keeps it).
-- **The disk is full or nearly so:** do not install or build to make a hook run; record what is uncommitted and stop.
+- **The disk is full or nearly so:** do not install or build anything to make a git hook run; record what is uncommitted and stop.
 - **A process will not die, or the permission check refuses the kill:** hand it to the user with the PID and the
   command; the checkpoint says "NOT safe to restart" only if that process holds unsaved work, and otherwise names it.
 

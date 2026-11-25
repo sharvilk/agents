@@ -2,7 +2,7 @@
 
 Every reviewer in a crossfire run reports in this shape, and every later stage reads it. The orchestrator pastes
 this file into each reviewer's brief; it does not ask the reviewer to open it, because reviewers told to "read the
-rubric" mostly don't.
+contract" mostly don't.
 
 ## Table of contents
 
