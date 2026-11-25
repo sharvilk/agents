@@ -12,8 +12,8 @@ the panel would catch problems in the skill's own documentation. It is not an ev
 
 ## The run
 
-`/crossfire README.md`, on 2026-11-12, with the second version of the skill. It ran in a temporary copy of the
-repository the skill was written in, so the panel had that repository's own rules for writing a skill to hold the
+`/crossfire README.md`, on 2026-11-12, with the second version of the skill. It ran in a temporary copy of a
+repository with its own written rules for skills (not published here), so the panel had those rules to hold the
 README to.
 
 ```

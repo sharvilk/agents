@@ -23,7 +23,7 @@ too much: merge, delete, change settings. This skill sits between the two. It ke
 every decision it took so you can overturn any of them, and never touches the short list of things that stay yours
 (merges you did not name, deletes, production writes, settings, big decisions).
 
-If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill, away-loop never arms and does not stop that loop; the phrases on the heading's `Answers:` line go to it, and for an arming phrase that is not on that line it says in one line which loop owns the session and how to stop or resume it.
+If the session's todo list has a `## Loop state:` heading that is ARMED or PAUSED and owned by another skill, away-loop never arms and does not stop that loop; the phrases on the heading's `Answers:` line go to it, and for an arming phrase that is not on that line it says in one line which loop owns the session and how to stop or resume it. (In this repo, `on-loop` is the skill that writes that heading.)
 
 ## How a tick works
 
@@ -143,10 +143,10 @@ sections.
 | What happens | What you see | What to do |
 | --- | --- | --- |
 | `CronCreate` is not in the tool list, or scheduling is turned off (`CLAUDE_CODE_DISABLE_CRON=1`) | before you leave: the session cannot wake itself, so nothing will run while you are away. It offers to work until the current step is done and then stop with a summary | enable scheduling and ask again, or accept the shorter run |
-| The scheduling call is refused by a permission check | the same message, with the refusal named. It never says a wake-up exists, and does not retry around it | allow the call, or accept the shorter run |
+| The scheduling call is refused by a permission check | the same message. It never says a wake-up exists, and does not retry around it | allow the call, or accept the shorter run |
 | The `todo-sync` skill is not available | before you leave: it says so, and keeps the plan in a file you name, or in the project's planning doc | install `todo-sync`, or name the file |
 | The wake-up is older than 6 days | on that tick, a new recurring job with the same prompt is created and recorded first, then the old one is deleted, then `CronList` confirms exactly one | nothing |
-| That re-arm fails (scheduler off, permission refused, a task limit) | the old job stays; the status table and "Waiting for you" say "wake-up ends at when the old job expires (7 or 30 days after <old creation>, by version); could not re-arm" | allow scheduling and ask for a new loop before then |
+| That re-arm fails (scheduler off, permission refused, a task limit) | the old job stays; the status table and "Waiting for you" say "wake-up ends when the old job expires (7 or 30 days after <old creation>, by version); could not re-arm" | allow scheduling and ask for a new loop before then |
 | The job expired anyway (7 or 30 days passed, by version, so it fired one last time and deleted itself) | after that last tick, no more ticks; the todo list still holds the plan | ask the agent to arm a new loop |
 | A job fires in a resumed session whose plan is gone or consumed | the tick deletes its own job and says so in one line | nothing |
 | A tick cannot run its step (CI down, disk low, a refused action) | the status table names it under Blockers; a refused action goes in "Waiting for you" | read the queue when you return |

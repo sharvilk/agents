@@ -267,7 +267,7 @@ Each figure is one sample per case, not an average.
 
 - **One model family.** Every agent is a Claude model, and model errors correlate. PAL and LLM Council draw on
   several families.
-- **Cost and time.** $3–17 and 8–33 minutes a run in the recorded examples, 86–97% of it on Opus. A one-agent review
+- **Cost and time.** $3–17 and 8–33 minutes a run in the recorded examples, 86–97% of it on Opus (86%, 96% and 95% in the published records). A one-agent review
   is expected to cost much less, though that was not measured here.
 - **Not for line-level code review.** Once code exists, a diff reviewer such as Anthropic's code-review plugin is the
   right tool.

@@ -63,7 +63,8 @@ The full comparison, tool by tool, with diagrams and examples from real runs, is
 **Who it is for:** anyone who lets Claude, or another agent, write plans. The clearest use is to check your agent's
 plan before it writes the code.
 
-**What it costs you, honestly** (measured on the [examples](examples/README.md)):
+**What it costs you, honestly** (measured on the [examples](examples/README.md): small made-up projects, at list
+price, with the main session on Opus; a larger repo may cost more):
 - **Money and time:** $3–17 and 8–33 minutes a run, with about 90% of the cost on Opus.
 - **Reach:** Claude Code only, and one model family.
 - **Evidence:** a small eval set so far, and the current version is not yet run end to end (see
@@ -186,7 +187,7 @@ target triggers them, and the lenses left out are listed with a reason, so "not 
 silent. The orchestrator tells you the depth, the seats and why, and continues without waiting.
 
 **2. Draft.** Every reviewer starts in one message, so they run at the same time and none can see another. Each
-gets the frame, its seat's checklist and the finding contract pasted in full. The metaswarm project found that when
+gets the frame, its seat's checklist and the finding contract pasted in full. The metaswarm project reports that when
 the orchestrator's prompt did not name the rubric, only 1 of 73 of its design reviewers opened the rubric file in one
 session ([its reviewer-rubric eval](https://github.com/dsifry/metaswarm/tree/4bbb10abd301b9ec9d63371e296049cbc6043baa/evals/reviewer-rubric)).
 Pasting guarantees the text reaches every reviewer; it cannot guarantee the reviewer applies it. Reviewers open repo files themselves and cite them.
@@ -618,16 +619,18 @@ What the runs show:
 - **It stops rather than guesses.** Three of four eval runs ended at STOP, each on facts the example did not
   contain (what renders a page, whether a queue schedule registers once). Round 2 of the help page answered its
   questions in the plan, and the run passed with nothing blocking.
-- **It sizes itself, in the two runs where it chose.** The picker chose deep for the authentication change and
-  quick for the copy change.
-- **The summaries stay short.** The words above the Conditions table were 208, 265, 122 and 101.
+- **It sizes itself, in the three runs where it chose.** The picker chose deep for the authentication change,
+  standard for the scheduling question and quick for the copy change.
+- **The summaries stay short.** The words above the Conditions table were 208, 265, 122 and 101 (counted from the
+  run files, which are not published).
 - **It corrects its own key.** The password-reset panel pointed out that "tokens never expire" was not quite right:
   a nightly job removes rows after 30 days, so the real defect is reuse after the password changes.
 
 Costs are the list-price figures each session reported (`total_cost_usd`), not a bill:
-- **Opus takes most of it.** 86–97% of every run: the orchestrator (your main session, which ran on Opus in these
+- **Opus takes most of it.** 86–97% of every run (the published records give 86%, 96% and 95%; the rest is from the
+  run files): the orchestrator (your main session, which ran on Opus in these
   runs, judging by each session's model usage), the pre-mortem, the verifiers and the chair. The Sonnet seats cost
-  cents each; the one `fable` seat in the deep run cost $1.19.
+  cents each; the one `fable` seat in the deep run cost $1.19 (from the run files).
 - **The verifier cap has been measured once.** The first version had no cap, and the deep run used 16 verifiers.
   The second version merged duplicates and capped verifiers: the self-review batched 9 groups into 4 verifiers.
   A deep run under the cap has not been measured.
@@ -692,7 +695,10 @@ two tests. The 7 tests of `test_run.py` caught all of them.
 - the current version end to end (every recorded run predates the review fixes);
 - a deep run under the verifier cap;
 - the security-lens change that names stored credentials as blocking-grade;
-- starting `/crossfire` from a Sonnet session to cut the orchestrator's cost.
+- starting `/crossfire` from a Sonnet session to cut the orchestrator's cost;
+- installing it as a plugin (`/plugin install crossfire@agents`), and the `crossfire:`-prefixed agent and command
+  names a plugin install gives: every recorded run used a copied skill folder;
+- the copy install on the current version.
 
 ## Evals
 
@@ -731,9 +737,9 @@ The raw run files are not published, so that search cannot be repeated from this
 | Do not count models as independent votes | Errors correlate across 350+ models, even across providers | Kim et al., [Correlated Errors in Large Language Models](https://arxiv.org/abs/2506.07962), ICML 2025 |
 | A panel is not a jury: a majority of models is not a majority of independent experts | Nine judges carried about two independent votes' worth of information | Kohli, [Nine Judges, Two Effective Votes](https://arxiv.org/abs/2605.29800), 2026 preprint |
 | Mixing models helps only in some setups | Sampling the best single model beat mixing models on several benchmarks | Li et al., [Rethinking Mixture-of-Agents](https://arxiv.org/abs/2502.00674), 2025 |
-| A good selector matters more than diverse writers | Diverse teams beat a single model only with a strong judge selecting | Maryanskyy et al., [When Agents Disagree](https://arxiv.org/abs/2603.20324), 2026 |
+| A good selector matters more than diverse writers | A diverse team with a judge selecting beat a single model (win rate 0.81), a same-model team scored near chance, and judge selection beat blending the answers | Maryanskyy et al., [When Agents Disagree](https://arxiv.org/abs/2603.20324), 2026 |
 | Debate is not free accuracy | Multi-agent debate often fails to beat simpler baselines | Zhang et al., [Stop Overvaluing Multi-Agent Debate](https://arxiv.org/abs/2502.08788), 2025 |
-| Verify against ground truth | Model filters removed 94–98% of false static-analysis alarms | Du et al., [Reducing False Positives in Static Bug Detection with LLMs](https://arxiv.org/abs/2601.18844), 2026 |
+| Verify against ground truth | Hybrid model and static-analysis techniques removed 94–98% of false alarms, with high recall, on an industrial dataset | Du et al., [Reducing False Positives in Static Bug Detection with LLMs](https://arxiv.org/abs/2601.18844), 2026 |
 | An advocate against over-rejection | Model reviewers often judge correct code non-compliant | Jin and Chen, [Are LLMs Reliable Code Reviewers?](https://arxiv.org/abs/2603.00539), 2026 |
 | Three rounds, then escalate | Most of the gain from repair loops comes in the first three or four iterations | Kiecker et al., [Is Three the Magic Number?](https://arxiv.org/abs/2607.05197), 2026 |
 
@@ -747,7 +753,7 @@ crossfire borrows ideas, not text, from three public projects, read at the commi
 
 | Project | Took | Left |
 | --- | --- | --- |
-| [LLM Council](https://github.com/karpathy/llm-council) @ `92e1fcc` (no licence) | independent first drafts in parallel; anonymous peer review; every raw output kept for inspection; one failed model does not sink the run | ranking whole answers by average position; one fixed A/B/C order for every judge; a final writer who sees model names but not which label is which |
+| [LLM Council](https://github.com/karpathy/llm-council) @ `92e1fcc` (no licence file) | independent first drafts in parallel; anonymous peer review; every raw output kept for inspection; one failed model does not sink the run | ranking whole answers by average position; one fixed A/B/C order for every judge; a final writer who sees model names but not which label is which |
 | [PAL MCP consensus](https://github.com/BeehiveInnovations/pal-mcp-server) @ `7afc7c1` (Apache-2.0) | strict blinding of each model from the others and from the caller's notes; stance seats with a guardrail that a stance never bends the facts; a reply shape that starts with the verdict and has a length cap | calling models one at a time; run state shared between callers; a confidence of "high" reported whatever happened; 1–10 confidence scores |
 | [metaswarm](https://github.com/dsifry/metaswarm) design-review gate @ `4bbb10a` (MIT) | blocking only when severity is high and the finding names what it protects; reviewers report and the orchestrator decides; escalation never approves; stopping to ask when fixes cause new blockers; overreach signals; evals with planted defects | six reviewers on the strongest model every round for up to ten rounds; full re-review each round; severities left undefined; a task-tracker dependency |
 

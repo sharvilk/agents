@@ -44,7 +44,7 @@ worktrees itself):
 python3 "${CLAUDE_SKILL_DIR}/checkpoint-scan.py" <repo-root> [<repo-root> ...]
 ```
 
-It prints the machine (disk, load, swap), each worktree's state (uncommitted files, unpushed commits, a half-done
+It prints the machine (disk, load, and swap on macOS), each worktree's state (uncommitted files, unpushed commits, a half-done
 merge or rebase, the stash count) and every process whose working directory is inside those repos: PID, parent, age,
 CPU, memory, executable and cwd, never a command line or environment. Exit 0 means nothing to deal with; 1 means
 something listed needs a decision; 2 means a check could not run. Add to it what only you know: the subagents and

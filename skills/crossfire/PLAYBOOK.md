@@ -158,7 +158,7 @@ round with a blocker still open escalates rather than going round again.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| `/crossfire` does nothing, or is unknown | The skill is not installed where Claude Code looks | Copy the folder to `~/.claude/skills/crossfire/` ([Install](README.md#install)) and start a new session |
+| `/crossfire` does nothing, or is unknown | The skill is not installed where Claude Code looks | Install the plugin, or copy the folder to `~/.claude/skills/crossfire/` and its two agent files to `~/.claude/agents/` ([Install](README.md#install)); then start a new session |
 | The Run line says the read-only limit was in the prompt only | The agent definitions are not in `~/.claude/agents/` | Copy `crossfire-reviewer.md` and `crossfire-verifier.md` from the skill's agents folder there, and start a new session |
 | It stops at once with one line | The target is missing or unreadable | Check the path from the repo root, or the PR number and `gh auth status` |
 | Every run is STOP | The plan lacks facts reviewers need (sizes, traffic, who uses it) | Put the facts in the plan. That is the run working, not failing |
