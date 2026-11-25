@@ -79,7 +79,7 @@ New for this loop:
 ## What it does not do
 
 - It does not run while Claude Code is not running, or after the session exits; it says so before arming.
-- It does not merge, publish, delete, deploy, spend or change settings.
+- It does not merge, publish, deploy, spend or change settings, and deletes only the worktrees and branches of its own merged or closed PRs.
 - It ships no hook. One is added only if real use shows a slip, and then as a settings change on the user's go.
 - It does not read plan usage, notify outside the session, invent roadmap work or rewrite the roadmap's text, order
   or checks, run `crossfire` (a separate skill) or any eval, or widen what the user approved.

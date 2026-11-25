@@ -99,7 +99,7 @@
       "source": "./skills/on-loop",
       "skills": ".",
       "description": "Keeps a session working a project's roadmap while you come and go: one item at a time on its own branches, each decision logged with an exact undo for you to keep, change or veto.",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "author": {
         "name": "Sharvil Kadam",
         "url": "https://github.com/sharvilk"

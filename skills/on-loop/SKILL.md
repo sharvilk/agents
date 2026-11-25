@@ -1,6 +1,6 @@
 ---
 name: on-loop
-description: Keep a session working a project's roadmap continuously while the user comes and goes. It works one roadmap item at a time on its own branches, decides small and reversible things itself, writes each decision into a log with a diagram, an example and an exact undo, and gives the log to the user to keep, change or veto. It never merges, publishes, deletes or deploys. It starts only when the user says "start the on-loop", "work the roadmap continuously" or "always-on mode". Also use when a scheduled message starts with "On-loop tick"; while this session's todo list holds a `## Loop state:` heading that is ARMED or PAUSED, for the phrases on that heading's `Answers:` line ("stop the loop", "pause the loop", "resume the loop", "renew the loop", "review", "status"); and, whenever a `## Loop state:` marker (ARMED, PAUSED or ENDED) exists with ledger entries still pending, for "review" and "keep/veto/change <ids>".
+description: Keep a session working a project's roadmap continuously while the user comes and goes. It works one roadmap item at a time on its own branches, decides small and reversible things itself, writes each decision into a log with a diagram, an example and an exact undo, and gives the log to the user to keep, change or veto. It never merges, publishes or deploys, and deletes only the worktrees and branches of its own merged or closed PRs. It starts only when the user says "start the on-loop", "work the roadmap continuously" or "always-on mode". Also use when a scheduled message starts with "On-loop tick"; while this session's todo list holds a `## Loop state:` heading that is ARMED or PAUSED, for the phrases on that heading's `Answers:` line ("stop the loop", "pause the loop", "resume the loop", "renew the loop", "review", "status"); and, whenever a `## Loop state:` marker (ARMED, PAUSED or ENDED) exists with ledger entries still pending, for "review" and "keep/veto/change <ids>".
 ---
 
 # On-loop
@@ -71,9 +71,12 @@ move to other work, and never look for another route. A refused permission is a 
 
 - merging or approving a PR; enabling auto-merge or adding to a merge queue;
 - pushing to the default or a release branch, force-pushing, `--no-verify`;
-- **any delete**: branches, worktrees, stashes, files outside its own change, resources, data, caches outside its
-  own worktree. This includes its own branches and worktrees, at wind-down, on a veto and after a merge. It lists the
-  clean-up for the user with the exact commands instead. It may remove only its own scratch files in the session
+- **any delete** except one: once a PR it opened merges or closes, it removes that PR's worktree and deletes its
+  branch, locally and on GitHub, after checking the worktree has nothing uncommitted and nothing unpushed; if
+  something is, it lists the clean-up with the exact commands for the user instead. Every other delete is class D:
+  its open branches at wind-down, a veto (reverts with new commits), the ledger branch while its PR is open, other
+  people's branches, stashes, files outside its own change, resources, data, caches outside its own worktree. It
+  may remove only its own scratch files in the session
   scratchpad, and the dependency folders and build output it installed or produced in its own worktree (part of its
   own change, regenerable); shared caches and anything outside its worktree stay class D;
 - closing or reopening PRs or issues; changing repository settings (branch protection, secrets, webhooks);

@@ -17,7 +17,9 @@ On "stop the loop", "pause the loop", a STOP in limits-and-drift.md, or the end 
    Every write of the claim reads it first, writes the new content to a temp file beside it and renames that into
    place; it never opens the claim for writing in place. Releasing it means rewriting it as `released <time>`;
    nothing deletes it.
-6. **Clean-up is the user's.** The log branch and its PR stay open. The loop's finished branches and worktrees stay
-   until the user decides: list them with the exact commands to remove them (`git worktree remove <path>`,
-   `git branch -d <branch>`, `git push origin --delete <branch>`) and run none. It may remove only its own scratch files in the
+6. **Open branches are the user's.** The log branch and its PR stay open. The branches and worktrees of PRs that
+   already merged or closed were cleaned up when that happened (tick step 6); if any were not, do it now under the
+   same check. The branches and worktrees of PRs still open stay until the user decides: list them with the exact
+   commands to remove them (`git worktree remove <path>`, `git branch -d <branch>`,
+   `git push origin --delete <branch>`) and run none. It may remove only its own scratch files in the
    session scratchpad, and the dependency folders and build output it produced in its own worktree.
