@@ -11,7 +11,7 @@
       "source": "./skills/todo-sync",
       "skills": ".",
       "description": "Keeps each session's todo list complete in its own file, and rebuilds it from the session's transcript when it goes missing or comes back short.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Sharvil Kadam",
         "url": "https://github.com/sharvilk"
@@ -31,7 +31,7 @@
       "source": "./skills/checkpoint",
       "skills": ".",
       "description": "Brings a session's work to a safe stopping point before a restart, records exactly where it stands, and resumes from that record afterwards.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Sharvil Kadam",
         "url": "https://github.com/sharvilk"
@@ -55,7 +55,7 @@
       "source": "./skills/away-loop",
       "skills": ".",
       "description": "Keeps a session working, visibly, while you are away for hours: a 30-minute wake-up, minor decisions logged, questions queued, one summary when you return.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Sharvil Kadam",
         "url": "https://github.com/sharvilk"
@@ -92,6 +92,30 @@
         "planning",
         "subagents",
         "decisions"
+      ]
+    },
+    {
+      "name": "on-loop",
+      "source": "./skills/on-loop",
+      "skills": ".",
+      "description": "Keeps a session working a project's roadmap while you come and go: one item at a time on its own branches, each decision logged with an exact undo for you to keep, change or veto.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Sharvil Kadam",
+        "url": "https://github.com/sharvilk"
+      },
+      "license": "Apache-2.0",
+      "repository": "https://github.com/sharvilk/agents",
+      "homepage": "https://github.com/sharvilk/agents",
+      "keywords": [
+        "roadmap",
+        "autonomy",
+        "loop",
+        "decision-log",
+        "session"
+      ],
+      "dependencies": [
+        "todo-sync"
       ]
     }
   ]

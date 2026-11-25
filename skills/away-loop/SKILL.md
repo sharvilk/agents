@@ -5,6 +5,8 @@ description: Keep a session working, visibly, while the user is away for hours (
 
 # Away loop
 
+**If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED (owned by another skill), never arm, and do not stop that loop.** A phrase on its `Answers:` line goes to that loop and only changes its posture. An arming phrase of this skill's that is not on that line (for example "I'm going to sleep" while the loop is PAUSED) does not arm, and while the heading is PAUSED an arming phrase gets that one line whether or not it is listed: say in one line which loop owns the session and how to stop or resume it, then stop. Its other phrases stay yours as usual. A consumed away plan is not a loop.
+
 The user is gone for hours, and the work should not stall at the first thing that needs them. This skill
 turns "keep going while I'm away" into a procedure. A wake-up every 30 minutes keeps the session moving.
 Each tick does the next unblocked step, decides what the agent may decide, and queues what it may not.
