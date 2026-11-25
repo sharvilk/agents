@@ -8,10 +8,11 @@ description: Keep a session working, visibly, while the user is away for hours (
 **If this session's todo list has a `## Loop state:` heading that is ARMED or PAUSED (owned by another skill), never arm, and do not stop that loop.**
 
 - A phrase on the heading's `Answers:` line goes to that loop and only changes its posture.
-- An arming phrase of this skill's that is not on that line (for example "I'm going to sleep" while the loop is
-  PAUSED) does not arm.
-- While the heading is PAUSED, an arming phrase gets one line whether or not it is listed: say in one line which
-  loop owns the session and how to stop or resume it, then stop.
+- While the heading is ARMED, every arming phrase of this skill's goes to that loop too, whether or not the line
+  lists it, in any wording: invoke the owner skill the heading names and let it answer, so it knows the user is
+  away. Never arm.
+- While the heading is PAUSED, an arming phrase does not arm and gets one line whether or not it is listed: say in
+  one line which loop owns the session and how to stop or resume it, then stop.
 - This skill's other phrases stay yours as usual.
 
 A consumed away plan is not a loop.

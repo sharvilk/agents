@@ -14,6 +14,10 @@ skill's own README is its front page.
 | [`crossfire`](skills/crossfire/README.md) | Reviews a plan, design doc, pull request or open decision before you build it, with independent read-only reviewers and a fixed gate. |
 | [`on-loop`](skills/on-loop/README.md) | Keeps a session working a project's roadmap while you come and go, and logs each decision it makes for you to keep, change or veto. |
 
+**away-loop or on-loop?** away-loop is for hours away on a plan you approved, and stops at your first message back.
+on-loop works a roadmap while you come and go, and logs each decision for you to keep, change or veto. Each README
+has a section comparing the two.
+
 ## Use with Claude Code
 
 Each skill installs as a Claude Code plugin. Add the marketplace once, then install what you want:

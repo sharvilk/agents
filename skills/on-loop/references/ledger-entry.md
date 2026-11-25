@@ -4,11 +4,11 @@ The decision ledger is a committed Markdown file, one per day, entries appended,
 is the well-known decision-record one (context, options, outcome, consequences; MADR, Markdown Architectural Decision Records, is the common template) with
 four additions this loop needs: a diagram, a worked example, the exact undo, and what depends on it.
 
-Three parts change after writing: the heading line (the status), the **Built on it since** line and the **Review**
-line. Counting is a `grep` of the heading (`grep -c '· pending$'`), never the agent's memory. Ids continue across
-charters and renewals (`D-001`, `D-002`, ...; the next is the highest in the ledger plus one, found by a `grep`,
-never from memory); class C items are `C-1`, `C-2`, ... and live in the todo file's "Waiting for you", with a link
-to their write-up.
+In a full entry, three parts change after writing: the heading line (the status), the **Built on it since** line and
+the **Review** line. A class A entry changes only its heading line. Counting is a `grep` of the heading
+(`grep -c '· pending$'`), never the agent's memory. Ids continue across charters and renewals (`D-001`, `D-002`, ...; the next is
+the highest in the ledger plus one, found by a `grep`, never from memory); class C items are `C-1`, `C-2`, ... and
+live in the todo file's "Waiting for you", with a link to their write-up.
 
 ## The heading line, exactly
 

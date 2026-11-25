@@ -4,7 +4,7 @@ Pasted in full into the brief of the reviewer that holds this seat.
 
 ## Seat this lens when
 
-The target changes behaviour that should be checked automatically; seated by default at standard and deep depth. Judge against the repo's own testing rules, never a universal standard.
+The target changes behaviour that should be checked automatically; at standard and deep depth it is seated first when this matches, and never seated when it does not. Judge against the repo's own testing rules, never a universal standard.
 
 ## Check
 

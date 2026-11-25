@@ -92,7 +92,8 @@ is written in one go at the end, so while reviewers and verifiers work, no file 
    - the done items, numbered `D1`…; if the target has none, write the ones its asks imply and mark them
      `(inferred)`;
    - in whether-mode, the options `O1`…, always including "keep things as they are", and any choice the owner has
-     already said is theirs to make;
+     already said is theirs to make; if the owner has said which option they lean to, mark it `(leading)` and quote
+     them;
    - the repo rules that apply: read `AGENTS.md`, `CLAUDE.md` and `CONTRIBUTING*` if present, list their paths, and
      quote the rules that touch this target (at most ten);
    - past failures: if the repo keeps incident or postmortem records, list their folder;
@@ -112,7 +113,9 @@ is written in one go at the end, so while reviewers and verifiers work, no file 
 | deep | authentication, permissions, money, deleting or migrating stored data, personal data, a public contract, production infrastructure | advocate + pre-mortem + 5 lenses | every seat |
 
 **Lenses.** Read the "Seat this lens when" line of each file in [references/lenses/](references/lenses/) and seat
-the ones the target triggers, most likely to find a blocker first, plus any the owner forced with `+lens`. Never pad:
+the ones the target triggers, most likely to find a blocker first, plus any the owner forced with `+lens`. At
+standard and deep depth, the architecture and testing lenses go first whenever their trigger matches; at quick
+depth they take the usual order. A lens whose trigger does not match is never seated unless forced. Never pad:
 if only two lenses apply at standard depth, seat two. Note each lens not seated with a one-line reason; those lines
 become the summary's "Not checked" section.
 
@@ -224,7 +227,7 @@ it; for a PR or a question, the newest folder under `.crossfire/<target-slug>/` 
 - diff the target against the last round's `target.md` (a PR: against its last head SHA). If that round has no
   `target.md`, diff against the commit its summary pins; if that commit is gone too, treat every section as
   changed, and say so;
-- reuse the frame;
+- reuse the frame, the depth and every lens forced with `+lens`; a `+lens` given on the re-run adds that seat;
 - seat fresh agents in the same seats, each briefed with the round block: open conditions, changed sections and the
   owner's won't-do list;
 - give the chair the previous Conditions table, and keep every row;

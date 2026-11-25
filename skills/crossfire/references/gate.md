@@ -49,7 +49,7 @@ The chair moves a condition to `follow-up`, with the reason in its row, when it:
 - hardens against a threat the plan's stated environment does not have, with no credible normal-use scenario;
 - would cost more to check than the feature costs to build, for a risk that normal use does not reach.
 
-Signs the run itself is overreaching, which the summary reports when they appear:
+Signs the run itself is overreaching, which the summary reports in one line under the verdict when they appear:
 
 - a second round raised new blockers that name no new user-visible risk;
 - the conditions outgrew the plan: more conditions than the plan has steps.
@@ -68,6 +68,8 @@ Written by the orchestrator, beside the target: `<target-name>.crossfire.md` (a 
 ## Verdict
 
 **Gate: <PASS | REVISE | STOP | ESCALATE | INCOMPLETE>.** <one sentence: why, naming the condition ids>
+
+<only when a sign under "Holding back overreach" appears: Overreach: <the sign, in one line>>
 
 <the chair's recommendation, two or three sentences; in whether-mode, the option it recommends and why>
 
