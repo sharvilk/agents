@@ -37,6 +37,7 @@ say "I'm back" (or any message): it stops the loop and gives you one summary.
 - [Install](#install)
 - [Quick start](#quick-start)
 - [Why it exists](#why-it-exists)
+- [away-loop and on-loop](#away-loop-and-on-loop)
 - [How a tick works](#how-a-tick-works)
 - [What it stores, and where](#what-it-stores-and-where)
 - [Examples](#examples)
@@ -51,6 +52,40 @@ Left alone, a session stops at the first thing that needs you, and the night is 
 too much: merge, delete, change settings. This skill sits between the two. It keeps the work moving, writes down
 every decision it took so you can overturn any of them, and never touches the short list of things that stay yours
 (merges you did not name, deletes, production writes, settings, big decisions).
+
+## away-loop and on-loop
+
+[`on-loop`](../on-loop/README.md), another skill in this repo, also keeps a session working without you. The two
+never run together in one session. They differ in what they work on and in what your next message does.
+
+```
+ DERIVED from both skills' SKILL.md files
+                    away-loop                         on-loop
+ when               you're gone for hours             any time; you come and go
+ starts on          "I'm going to sleep", ...         "start the on-loop", then a typed yes
+ works on           only the plan you approved        the roadmap, one item after another
+ decides            minor things only                 also reversible design choices, with undo
+ your next message  stops it; one summary             is answered, and the loop carries on
+ how long           hours                             a 7-day charter
+```
+
+What happens when you say you're leaving:
+
+```
+ DERIVED from both SKILL.md files: what "I'm going to sleep", or any words for leaving, do
+ nothing armed   → away-loop starts: works the approved plan, stops when you're back
+ (or ENDED)
+ on-loop ARMED   → on-loop keeps the session and sets its away mark: each tick writes the status
+                   table and a full report comes about every 2 hours, for you to read later; it says
+                   so in one line. away-loop never starts, whatever the wording
+ on-loop PAUSED  → one line: on-loop is paused; say "resume the loop" or "stop the loop".
+                   Nothing starts
+```
+
+Pick away-loop for a night or a trip with a plan you have approved. Pick the on-loop when the project has a roadmap
+and you would rather review decisions afterwards than be asked about each one. The full comparison is in the
+on-loop's README, under [Why it exists, and how it differs from
+away-loop](../on-loop/README.md#why-it-exists-and-how-it-differs-from-away-loop).
 
 ## How a tick works
 
@@ -196,8 +231,9 @@ sections.
 
 Another skill can run its own background loop and mark the session's todo list with a `## Loop state:` heading. While
 that heading says ARMED or PAUSED, away-loop never arms and does not stop that loop. The phrases on the heading's
-`Answers:` line go to that loop. For an arming phrase that is not on that line, away-loop says in one line which loop
-owns the session and how to stop or resume it. In this repo, `on-loop` is the skill that writes that heading.
+`Answers:` line go to that loop. While the loop is ARMED, every away phrase goes to it as well, in any wording, so it
+knows you are away. While it is PAUSED, away-loop says in one line which loop owns the session and how to stop or
+resume it. In this repo, `on-loop` is the skill that writes that heading.
 
 ## Files
 

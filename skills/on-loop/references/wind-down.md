@@ -10,7 +10,9 @@ On "stop the loop", "pause the loop", a STOP in limits-and-drift.md, or the end 
    after wind-down is recorded in the ledger and the final report, and takes no next step.
 4. Stop its own background processes by PID. Re-check PRs and CI from the sources.
 5. Give the final report: the full status report, the decisions (counts and flagged ones), what is waiting for review,
-   and why it stopped. For a pause, keep the charter, the state and the claim so "resume the loop" is one phrase;
+   and why it stopped. For an end with decisions still pending, the report says where they wait (the ledger PR, by
+   its full link) and that, once the todo list is closed, "review" no longer reaches the loop.
+   For a pause, keep the charter, the state and the claim so "resume the loop" is one phrase;
    for an end, release the claim and carry every open item into the normal list, dropping nothing (`todo-sync`).
    Every write of the claim reads it first, writes the new content to a temp file beside it and renames that into
    place; it never opens the claim for writing in place. Releasing it means rewriting it as `released <time>`;

@@ -12,7 +12,8 @@ message`. Anything else is the user, and the first thing done for it is to write
    job in the marker exists; if not, say so in one line, offer to re-arm, stop. Never re-arm on one's own.
 1. **Stop rules** ([limits-and-drift.md](limits-and-drift.md)): lifetime, silence, no progress, same failure, parked
    items. A stop means [wind-down.md](wind-down.md). **Gap rule:** compare the time now with `last beat`; if more
-   than two beats passed with no tick, say so in the first report after (a gap is reported, not hidden). A tick
+   than two beats at the current speed passed with no tick (30 minutes on the work beat, 2 hours on the quiet
+   beat), say so in the first report after (a gap is reported, not hidden). A tick
    that was due while a question panel was open, or while the user's turn ran, fires right after the turn ends; that
    is a late tick, not a lost one.
 2. **Job age and renewal.**

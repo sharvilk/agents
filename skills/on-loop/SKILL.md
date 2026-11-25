@@ -102,7 +102,7 @@ subagent, runs the item's check itself and marks each PR and entry "checked by t
 | "status" / "report" | the table / the full report: [references/updates.md](references/updates.md) |
 | "keep 14, veto 16, change 17: ..." | apply the verdicts, in any state, once the user says they have read the digest |
 | "I'm taking R4" | release the item at once: push what exists, record where it stopped, leave the branch |
-| "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away" (any form) | ARMED: stays the on-loop; sets an away mark; away-loop does not arm. PAUSED: one line (paused; "resume the loop" or "stop the loop"), no mark |
+| "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away" (any form, listed or not) | ARMED: stays the on-loop; sets an away mark and says so in one line; away-loop does not arm. PAUSED: one line (paused; "resume the loop" or "stop the loop"), no mark |
 | "I'm back", "good morning", "back online", "continue", "carry on", "keep going", bare "resume" | with a "Resume here" block for this session, `checkpoint` answers first and re-arms only a marker it paused (`reason checkpoint`) through this skill's "resume the loop" step; otherwise a bare "resume" is "resume the loop"; with the marker ARMED, "I'm back", "good morning" and "back online" give a short status and offer the review digest (digest first; verdicts after the user says they have read it), and the rest get one line: already working |
 | "stop ..." (anything else) | not a stop: answer it. Only "stop the loop" stops it. "stop everything safely" is `checkpoint`'s |
 | "wrap up", "close out" | `todo-sync` closes its part and never deletes this list or the loop's blocks; the loop keeps running |
@@ -151,7 +151,8 @@ user.
 
 0. **Marker and job.** Read the marker. ENDED, PAUSED or none: delete this job, one line, stop. ARMED: `CronList`;
    job missing: one line, offer to re-arm, stop.
-1. **Stop rules and gap.** Limits and silence; if more than two beats passed since `last beat`, say so once.
+1. **Stop rules and gap.** Limits and silence; if more than two beats at the current speed (30 minutes working,
+   2 hours quiet) passed since `last beat`, say so once.
    Load or disk over its line: bookkeeping only, no heavy step.
 2. **Job age and renewal.** Re-arm after 6 days; ask for renewal on charter days 5 and 6.
 3. **Yield.** A request of the user's still in progress: end the tick with no output.

@@ -54,7 +54,8 @@ target: it should stop with one line asking for one.
 - **Stance:** a fixed point of view instead of a checklist: the advocate (the strongest honest case for the plan) or
   the pre-mortem ("it shipped and failed; how?").
 - **Chair:** the one agent that merges the findings into a recommendation and a table of conditions.
-- **Verifier:** a fresh agent whose job is to refute one finding by reproducing its evidence; unsure means refuted.
+- **Verifier:** a fresh agent whose job is to refute one finding by reproducing its evidence; unsure means refuted,
+  and evidence it cannot reach (a private service, a page it may not fetch) becomes a question for you.
 - **First view:** the orchestrator's own opinion of the target, told to you in three lines before any reviewer
   starts. No agent ever sees it.
 - **Blocker:** a finding that is critical or major, protects something the plan must honour (an ask, a done item,
@@ -225,7 +226,8 @@ The frame quotes the target and your instructions, never the orchestrator's opin
 - the decision, in one sentence, and the mode (`how`: build what was asked; `whether`: "don't" is a valid answer);
 - the asks, numbered `A1`, `A2`…;
 - the done items, numbered `D1`…, marked `(inferred)` when the target had none;
-- in whether-mode, the options `O1`…, always including "keep things as they are";
+- in whether-mode, the options `O1`…, always including "keep things as they are", with the one you said you lean to
+  marked `(leading)` and your words quoted;
 - the repo's own rules from `AGENTS.md`, `CLAUDE.md` and `CONTRIBUTING`, quoted;
 - where the repo keeps records of past incidents, if it does;
 - the target's size: over about 600 lines, reviewers get a section list instead of the full text.
@@ -234,7 +236,8 @@ The orchestrator then tells you its own first view, in three lines, before any r
 puts it on record, so it cannot drift towards the panel's answer; no agent ever sees it.
 
 **1. Seat.** A seat is one reviewer's place on the panel: a lens, the advocate or the pre-mortem. Depth comes from risk (see [Depth](#depth-how-big-the-panel-is)). Lenses are seated only when the
-target triggers them, and the lenses left out are listed with a reason, so "not checked" is visible rather than
+target triggers them (at standard and deep depth, architecture and testing first when they apply), and the lenses
+left out are listed with a reason, so "not checked" is visible rather than
 silent. The orchestrator tells you the depth, the seats and why, and continues without waiting.
 
 **2. Draft.** Every reviewer starts in one message, so they run at the same time and none can see another. Each
@@ -265,7 +268,7 @@ related groups batched, so nothing is dropped for cost. Each verifier answers on
 | `VERIFIED critical` or `VERIFIED major` | stays blocking-grade |
 | `VERIFIED minor` or `VERIFIED nit` | becomes advisory, at the verifier's severity |
 | `REFUTED` | dropped; unsure means refuted |
-| `NEEDS DATA` | becomes a question for you |
+| `NEEDS DATA` | becomes a question for you; this includes evidence the verifier cannot reach, which it names |
 
 **6. Decide.** One chair merges duplicates, turns findings into conditions with runnable checks, moves overreach
 to follow-ups with a reason, lists the questions only you can answer and the disputes the evidence could not
@@ -529,6 +532,9 @@ first line that matches is the outcome ([gate.md](references/gate.md)):
 - In whether-mode, "don't do it" and "keep things as they are" are valid recommendations.
 - A should-fix is a non-blocking condition worth doing; a follow-up is one the chair moved out of scope, with a reason.
 
+When the run itself shows signs of overreaching (a second round raising new blockers with no new user-visible risk,
+or more conditions than the plan has steps), the summary says so in one line under the verdict.
+
 The chair moves a condition to a follow-up, with the reason in its row, when it overreaches:
 - it tests states the real system cannot produce;
 - it adds an abstraction only so a test can exist;
@@ -543,7 +549,7 @@ Running `/crossfire` again on the same target starts the next round.
  round 1 ──▶ REVISE or STOP ──▶ you change the plan (answer, fix, or mark "won't do: <reason>")
                                      │
                                      ▼
- round 2 ── diff vs round 1's target.md ── same seats, fresh agents ── each reviewer reports
+ round 2 ── diff vs round 1's target.md ── same seats, same depth, fresh agents ── each reports
             "Cn: met" or "Cn: not met" for its open conditions, plus new risks the change caused
                                      │
                                      ▼
@@ -560,7 +566,8 @@ Running `/crossfire` again on the same target starts the next round.
    still shows its changes. A PR is diffed against its last head SHA. If the last round has no saved copy, it
    diffs against the commit that round pinned; if that commit is gone, it treats every section as changed and
    says so.
-3. The orchestrator reuses the frame, and seats fresh agents in the same seats. Each is briefed with the open conditions, the
+3. The orchestrator reuses the frame, the depth and every lens you forced with `+lens`, seats fresh agents in the
+   same seats, and adds a seat for any `+lens` given on the re-run. Each is briefed with the open conditions, the
    changed sections and your won't-do list.
 4. A blocker a reviewer says is met goes to a verifier before it is marked fixed; unsure means not met. A blocker
    verified in an earlier round counts as a verified blocker until then.

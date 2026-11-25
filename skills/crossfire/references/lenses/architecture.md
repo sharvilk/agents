@@ -4,7 +4,7 @@ Pasted in full into the brief of the reviewer that holds this seat.
 
 ## Seat this lens when
 
-The target adds or moves a component, a module, a service, a table, a public interface, or a dependency between parts of the system; seated by default at standard and deep depth unless the change is confined to one existing function.
+The target adds or moves a component, a module, a service, a table, a public interface, or a dependency between parts of the system; at standard and deep depth it is seated first when this matches, unless the change is confined to one existing function. It is never seated when this does not match.
 
 ## Check
 

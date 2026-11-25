@@ -14,7 +14,7 @@ Read across: the phrase, then what happens in each session state.
 | "resume the loop" | nothing to resume | (already working) | already working | the on-loop resumes (charter clock kept) | nothing to resume |
 | a bare "resume", with a "Resume here" block | checkpoint resumes | (already working) | checkpoint resumes | checkpoint re-arms a `reason checkpoint` pause only, nothing for `reason user` | not answered by the loop |
 | a bare "resume", no resume block | nothing to resume | (already working) | the on-loop: already working | the on-loop resumes (charter clock kept) | nothing to resume |
-| "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away" | away-loop arms | (already armed) | the on-loop stays armed; its posture becomes AWAY | away-loop does not arm: one line says the on-loop owns the session and how to resume or stop it | away-loop arms |
+| "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away" | away-loop arms | (already armed) | the on-loop stays armed and sets its away mark, for these or any other words for leaving; its posture becomes AWAY and it says so in one line | away-loop does not arm: one line says the on-loop owns the session and how to resume or stop it | away-loop arms |
 | "review", "keep/veto/change <ids>" | no skill | no skill | the on-loop | the on-loop | the on-loop |
 | every other checkpoint trigger ("checkpoint", "save progress", "I'm going to restart", "before I restart", "before I quit", "stop everything safely", "is it safe to restart") | checkpoint | checkpoint | checkpoint | checkpoint | checkpoint |
 | "stop the loop", "pause the loop" | nothing to stop | away-loop answers | stop / pause | stop (pause: already paused) | nothing to stop |
@@ -37,7 +37,8 @@ Every checkpoint trigger stays checkpoint's in every state. PAUSED and ENDED: on
   step, but only for a marker it paused itself (`reason checkpoint`): the schedule is re-armed as in SKILL.md
   section 5, the claim is updated, `Answers:` is rewritten by this skill, and the charter's clock is **not** reset.
   A `reason user` pause gets no re-arm item.
-- **away-loop (separate).** One loop per session. On-loop armed and "I'm going to sleep": it stays the on-loop with an
-  away mark. away-loop armed and "start the on-loop": away-loop stops and summarises first, then the gates.
+- **away-loop (separate).** One loop per session. On-loop armed and "I'm going to sleep", in any wording: it stays the
+  on-loop with an away mark, and says so in one line; away-loop hands every such phrase to it. away-loop armed and
+  "start the on-loop": away-loop stops and summarises first, then the gates.
 - **crossfire (manual).** The loop cannot run it. A design-heavy class C item is queued with the exact words: "run
   /crossfire <path>".

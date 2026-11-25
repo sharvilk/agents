@@ -149,6 +149,23 @@ The big shift is when it checks with you:
 | Stops on | the first message, or the end time | the limits under [Limits and when it stops](#limits-and-when-it-stops), or the words "stop the loop" |
 | Stays yours | merges, deletes, production writes, settings, big decisions | the same, plus publishing, spending, default branches and the loop's own limits |
 
+### When you say you're leaving
+
+```
+ DERIVED from both SKILL.md files: what "I'm going to sleep", or any words for leaving, do
+ nothing armed   → away-loop starts: works the approved plan, stops when you're back
+ (or ENDED)
+ on-loop ARMED   → on-loop keeps the session and sets its away mark: each tick writes the status
+                   table and a full report comes about every 2 hours, for you to read later; it says
+                   so in one line. away-loop never starts, whatever the wording
+ on-loop PAUSED  → one line: on-loop is paused; say "resume the loop" or "stop the loop".
+                   Nothing starts
+```
+
+Without the away mark, a running on-loop treats you as present (one gauge line a tick) for 15 minutes after your
+last message, then as nearby (the status table, new information only), until two hours of silence make it AWAY.
+Handing every words-for-leaving phrase to it makes the switch to AWAY at once.
+
 The two are separate skills because their stop rules are opposites; the reasons are under
 [A separate skill, not a mode of away-loop](#a-separate-skill-not-a-mode-of-away-loop) in Background.
 
@@ -285,7 +302,7 @@ the skill again.
    0  marker       none, ENDED or PAUSED ──► delete own job, one line, stop
                    ARMED ──► CronList confirms the job
    1  stop rules   lifetime · silence · no progress · same failure · parked items ──► WIND DOWN
-                   more than two beats missed ──► say so
+                   more than two beats missed (30 min working, 2 h quiet) ──► say so
    2  renewal      day 5 and 6 of 7 ──► ask in the report; never re-arm past the charter unasked
    3  yield        is a request you typed still in progress? ──► end the tick with no output
    4  health       disk · load · memory · other sessions · your own branches and worktrees
@@ -806,7 +823,7 @@ session's state decides who answers, not the words.** The overlaps, taken from e
 | --- | --- | --- | --- | --- |
 | "I'm back", "good morning", "back online" | | resume after a restart | stop and summarise | the review offer, when there is no resume block |
 | "continue", "resume", "carry on", "keep going" | | resume after a restart | (it is what arms it: "carry on without me") | one line, when there is no resume block |
-| "I'm going to sleep", "I'm stepping away" | | | arms | already running: becomes AWAY |
+| "I'm going to sleep", "I'm stepping away" | | | arms | already running: sets its away mark, in any wording, and becomes AWAY |
 | "stop ..." | | "stop everything safely" | any message stops it | only "stop the loop" |
 | "wrap up", "close out" | closes this session's part; never deletes a live loop's list or blocks | | | |
 | "status", "report", "review" | | | | its own commands |
@@ -820,7 +837,7 @@ The routing by state, shortened (the full table is in [references/routing.md](re
 | "I'm back", "good morning", "back online"; "continue", "carry on", "keep going" | checkpoint resumes, if a resume block exists | away-loop stops and summarises ("continue": already working) | resume block: checkpoint resumes (a loop it paused only). None: the on-loop gives a short status and the review offer ("continue": one line, already working) | resume block: checkpoint re-arms a `reason checkpoint` pause only. None: not answered | not answered by the loop |
 | "resume the loop"; a bare "resume" with no resume block | nothing to resume | already working | already working | the on-loop resumes (charter clock kept) | nothing to resume |
 | a bare "resume", with a "Resume here" block | checkpoint resumes | already working | checkpoint resumes | checkpoint re-arms a `reason checkpoint` pause only | not answered by the loop |
-| "I'm going to sleep", "keep working while I'm away", "work overnight", "I'm stepping away" | away-loop arms | already armed | the on-loop stays armed; posture becomes AWAY | away-loop does not arm: one line says the on-loop owns the session | away-loop arms |
+| "I'm going to sleep", "keep working while I'm away", "work overnight", "I'm stepping away" | away-loop arms | already armed | the on-loop stays armed and sets its away mark, in any wording; posture becomes AWAY | away-loop does not arm: one line says the on-loop owns the session | away-loop arms |
 | "review", "keep/veto/change <ids>" | no skill | no skill | the on-loop | the on-loop | the on-loop |
 | "stop the loop", "pause the loop" | nothing to stop | away-loop answers | stop / pause | stop (pause: already paused) | nothing to stop |
 | other "stop ..." | no skill | away-loop stops | not a stop: answered | not a stop: answered | no skill |
@@ -853,7 +870,7 @@ paragraph, worded against the marker and not by name.
 
    away-loop  (separate)    one loop per session.
                             on-loop armed + "I'm going to sleep" ──► stays the on-loop; posture
-                                                                     AWAY; same authority
+                            (any wording)                            AWAY; same authority
                             away-loop armed + "work the roadmap" ──► away-loop stops and
                                                                      summarises, then the gates
                             nothing armed + "I'm going to sleep" ──► away-loop, as today
@@ -937,7 +954,7 @@ The todo list is not a handoff: everything another session or you must read is i
 | 15 | It widens its own limits | changing the charter is class D; only your quoted words change a limit |
 | 16 | Started by accident | explicit phrases only; nothing arms before the charter is answered with a typed yes in a later message |
 | 17 | Trigger collision with the other skills | state decides, by the routing table; a guard line in each skill |
-| 18 | The ledger is lost or wrong | push after every entry; only the heading line (status), the "Built on it since" line and the "Review" line change; counts come from `grep` |
+| 18 | The ledger is lost or wrong | push after every entry; in a full entry only the heading line (status), the "Built on it since" line and the "Review" line change, and in a class A entry only the heading line; counts come from `grep` |
 | 19 | A project forbids what the loop assumes | the project's rules are read into the charter and override the defaults; single-threaded where subagents are barred |
 | 20 | Leftover processes | budgets, stop by PID, strays listed before each report |
 | 21 | The shared parts exist twice | one references file naming its origin; a second drift earns a diff check |

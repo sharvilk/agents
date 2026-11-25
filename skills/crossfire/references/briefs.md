@@ -129,7 +129,9 @@ Reply with one line per label. Under each line, give at most 100 words of eviden
   reproduced, and the severity you would give it: critical, major, minor or nit.
 - `F3: REFUTED`: the evidence does not reproduce, or the claim does not follow. Say which, with what
   you found.
-- `F3: NEEDS DATA`: the claim turns on a fact neither the target nor the repo states. Name the fact.
+- `F3: NEEDS DATA`: the claim turns on a fact neither the target nor the repo states, or on evidence
+  you cannot reach (a private service, a page you may not fetch, a file outside the repo). Name the
+  fact, or what you could not reach.
 For a blocker a reviewer says is now met: `C2: MET` or `C2: NOT MET`, with the evidence. Unsure
 means NOT MET.
 
