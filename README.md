@@ -6,13 +6,27 @@ skill's own README is its front page.
 
 ## Skills
 
+Each skill has one category, named by what it is about.
+
+### Sessions
+
+Keeping an agent's work tracked, safe and moving through compactions, restarts and absences. They work in any kind
+of project, not only in code.
+
 | Skill | What it does |
 | --- | --- |
 | [`todo-sync`](skills/todo-sync/README.md) | Keeps each session's todo list complete in its own file, and rebuilds it from the transcript when it goes missing. |
 | [`checkpoint`](skills/checkpoint/README.md) | Brings a session to a safe stopping point before a restart, records where it stands, and resumes from that record. |
 | [`away-loop`](skills/away-loop/README.md) | Keeps a session working, visibly, while you are away for hours, and gives one summary when you return. |
-| [`crossfire`](skills/crossfire/README.md) | Reviews a plan, design doc, pull request or open decision before you build it, with independent read-only reviewers and a fixed gate. |
 | [`on-loop`](skills/on-loop/README.md) | Keeps a session working a project's roadmap while you come and go, and logs each decision it makes for you to keep, change or veto. |
+
+### Engineering
+
+Reviewing and building software: plans, pull requests and code.
+
+| Skill | What it does |
+| --- | --- |
+| [`crossfire`](skills/crossfire/README.md) | Reviews a plan, design doc, pull request or open decision before you build it, with independent read-only reviewers and a fixed gate. |
 
 **away-loop or on-loop?** away-loop is for hours away on a plan you approved, and stops at your first message back.
 on-loop works a roadmap while you come and go, and logs each decision for you to keep, change or veto. Each README
