@@ -1,0 +1,10 @@
+{
+  "platform": "chatgpt",
+  "title": "Synthetic pilot",
+  "chat_id": null,
+  "project": null,
+  "cutoff_before_text": "Save this chat.",
+  "first_message_confirmed_by_user": true,
+  "gaps": [],
+  "parent_revision": null
+}

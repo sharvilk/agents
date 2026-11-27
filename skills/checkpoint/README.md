@@ -92,7 +92,6 @@ In this repo, `on-loop` is the skill that writes that heading.
   4 rescue ────── scratchpad files that later work needs → a gitignored folder in the main checkout
         ▼
   5 record ────── the "Resume here" block at the top of the session's todo list
-        │         (+ the project tracker)
         ▼
   6 sweep ─────── the scan again; strays this session started are stopped; others are listed
         ▼

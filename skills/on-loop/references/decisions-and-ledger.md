@@ -19,7 +19,8 @@ Read at steps 8 to 10 of a tick. The classes and the never list are in SKILL.md.
   both pass; how an edge case behaves when the spec is silent; the layout of a new config section nothing outside
   the repo reads; **changing what an existing test expects, with the reason** (deleting, skipping or loosening a test
   is never allowed); splitting one item into two PRs; declining a reviewer's suggestion, with the reason; skipping an
-  item because it is blocked, and what it took instead; **adding a dependency**.
+  item because it is blocked, and what it took instead; **a narrow, named allowance in a check for one legitimate
+  case** (never a rewrite of the code to dodge it); **adding a dependency**.
 - **C examples:** anything in a public contract (a CLI flag, an exported API, a file format, a schema); a new service,
   queue, database or table, or a major version of a dependency; anything touching auth, secrets, permissions or what
   data leaves the machine; changing the scope, order or check of a roadmap item, or adding one; a migration of stored
@@ -47,7 +48,11 @@ A committed Markdown doc in the repo, one file per day, entries appended, in the
 progress folder when it has one; otherwise propose a folder the first time and ask. The entries go on **one
 long-running log branch with one open pull request** (its name follows the project's convention plus the `loop`
 suffix), pushed after every entry so a crash loses nothing. The user merges that PR when they like; the loop never
-does. **The log PR's body lists no decisions, and merging it is no verdict on any entry:** entries stay `pending`
+does. **At most one ledger PR is open, and at most one is opened per calendar day**; an item never gets its own
+ledger PR. If the user merges it mid-day, later entries keep going to the same branch (brought up to date by merging
+the default branch, never rebasing; the branch is kept after its PR merges) and the next day's first entry opens the next
+PR from it. ("review" shows the digest and needs no PR.)
+**The log PR's body lists no decisions, and merging it is no verdict on any entry:** entries stay `pending`
 until the user answers. Fallback when the project wants no such branch: a git-ignored folder in the main checkout,
 with the loss risk said out loud. Each work PR's body has a "Decisions in this PR" list with a line per entry and
 links into the ledger. The todo list holds only an index: id, class, status, link, one line.

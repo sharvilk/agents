@@ -29,7 +29,7 @@ skill. It is the only thing that says whether the loop is live:
 
 ```md
 ## Loop state: ARMED — on-loop — charter valid until 2026-12-01T09:00+0000 — job 5c0e91a2
-Answers: "stop the loop", "pause the loop", "renew the loop", "review", "status", "report", "resume", "I'm back", "good morning", "back online", "continue", "carry on", "keep going", "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away", "I'm stepping away for a few hours", "I'm taking <item>", "keep/veto/change <ids>"
+Answers: "stop the loop", "pause the loop", "renew the loop", "review", "status", "is it on?", "report", "resume", "I'm back", "good morning", "back online", "continue", "carry on", "keep going", "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away", "I'm stepping away for a few hours", "I'm taking <item>", "keep/veto/change <ids>"
 Owns: "On-loop charter", "On-loop state", "Roadmap view", "Decisions to review", "Waiting for you"
 ```
 
@@ -49,9 +49,9 @@ Owns: "On-loop charter", "On-loop state", "Roadmap view", "Decisions to review",
   the user. Never write ARMED for a job that does not exist.
 - **The claim** is `on-loop-claim.json` in the repo's shared git folder (session id, charter end date, job id, start
   time, last beat). **Every write reads it first, writes a temp file beside it and renames that into place; never
-  open it for writing in place.** To **release** it is to rewrite the file as
-  `released <time>`; gate 4 treats a released or expired claim
-  as free, and nothing deletes it. Renew, resume and every re-arm update its charter end date, job id and session id.
+  open it for writing in place.** To **release** it is to rewrite the file as `released <time>`; gate 4 treats a
+  released or expired claim as free, and nothing deletes it. Renew, resume and every re-arm update its charter end
+  date, job id and session id.
   If writing it is refused, say so in one line and continue single-session: no claim, and gate 4 is not checked.
 - **Confirm the job.** On any user message routed to the loop, and at each tick's step 0, run `CronList`. Job
   missing while the marker says ARMED: say so in one line and offer to re-arm; never delete, re-create or re-arm
@@ -59,12 +59,10 @@ Owns: "On-loop charter", "On-loop state", "Roadmap view", "Decisions to review",
   should have run, or at the next routed phrase.
 - **A resumed session** (`--resume`): the marker decides. A restored job under an ENDED or PAUSED marker, or with no
   marker, is deleted. A consumed away-loop plan is not an armed loop.
-- **`Answers:` is written by this skill only,** and rewritten with every state change, so keep it exact. When
-  `checkpoint` changes the state, this skill rewrites `Answers:` on resume; checkpoint never does.
+- **`Answers:` is written by this skill only,** rewritten exactly with every state change. When
+  `checkpoint` changes the state, this skill rewrites it on resume; checkpoint never does.
 
 ## 2. The never list (class D)
-
-The classes A to D are defined in section 4.
 
 Not with a blanket go, not when it would unblock everything. Queue the exact words the user would say ("merge 37"),
 move to other work, and never look for another route. A refused permission is a queue item too.
@@ -74,17 +72,14 @@ move to other work, and never look for another route. A refused permission is a 
 - **any delete** except one: once a PR it opened merges or closes, it removes that PR's worktree and deletes its
   branch, locally and on GitHub, after checking the worktree has nothing uncommitted and nothing unpushed; if
   something is, it lists the clean-up with the exact commands for the user instead. Every other delete is class D:
-  its open branches at wind-down, a veto (reverts with new commits), the ledger branch while its PR is open, other
-  people's branches, stashes, files outside its own change, resources, data, caches outside its own worktree. It
-  may remove only its own scratch files in the session
-  scratchpad, and the dependency folders and build output it installed or produced in its own worktree (part of its
-  own change, regenerable); shared caches and anything outside its worktree stay class D;
+  its open branches at wind-down, a veto (reverts with new commits), the ledger branch (kept), other
+  people's branches, stashes, files outside its own change, resources, data. Only its own scratch files in the session scratchpad and the
+  dependency and build folders it made in its own worktree may go;
 - closing or reopening PRs or issues; changing repository settings (branch protection, secrets, webhooks);
 - publishing, releasing, tagging, deploying; spending money or starting a paid resource; writes to production;
 - changing settings, `CLAUDE.md`, `AGENTS.md`, hooks, memory, or this skill's files;
 - changing its own charter or limits: only the user's own quoted words can;
 - network, VPN or system settings; touching another session's worktree, branch, stash or process;
-- printing secrets or another process's command line;
 - deleting, skipping or weakening a test to make a check pass;
 - working around a refused permission.
 
@@ -102,17 +97,17 @@ subagent, runs the item's check itself and marks each PR and entry "checked by t
 | "resume the loop", "start the on-loop" over its own PAUSED marker, a bare "resume" with no resume block | say in one line that it is resuming the paused loop; no question; then only from PAUSED and inside the charter: re-arm as in section 5, write ARMED with the new job id and rewrite `Answers:`; clock not reset; update the claim. Past the charter's end, offer "renew the loop" |
 | "renew the loop" | re-read the roadmap, show any change to the charter, extend its end by its length (7 days) from now, re-arm as in section 5; update the claim. From a `reason user` pause it extends the charter and stays paused; it does not re-arm. Not "keep going" |
 | "review", "what did you decide" | the digest, in any state while entries are pending: [references/review-and-veto.md](references/review-and-veto.md) |
-| "status" / "report" | the table / the full report: [references/updates.md](references/updates.md) |
+| "status", "is it on?" / "report" | table / full report: [references/updates.md](references/updates.md) |
 | "keep 14, veto 16, change 17: ..." | apply the verdicts, in any state, once the user says they have read the digest |
 | "I'm taking R4" | release the item at once: push what exists, record where it stopped, leave the branch |
 | "I'm going to sleep", "keep working while I'm away", "proceed while I sleep", "work overnight", "I'm stepping away" (any form, listed or not) | ARMED: stays the on-loop; sets an away mark and says so in one line; away-loop does not arm. PAUSED: one line (paused; "resume the loop" or "stop the loop"), no mark |
-| "I'm back", "good morning", "back online", "continue", "carry on", "keep going", bare "resume" | with a "Resume here" block for this session, `checkpoint` answers first and re-arms only a marker it paused (`reason checkpoint`) through this skill's "resume the loop" step; otherwise a bare "resume" is "resume the loop"; with the marker ARMED, "I'm back", "good morning" and "back online" give a short status and offer the review digest (digest first; verdicts after the user says they have read it), and the rest get one line: already working |
+| "I'm back", "good morning", "back online", "continue", "carry on", "keep going", bare "resume" | with a "Resume here" block for this session, `checkpoint` answers first and re-arms only a marker it paused (`reason checkpoint`) via "resume the loop"; otherwise a bare "resume" is "resume the loop"; with the marker ARMED, "I'm back", "good morning" and "back online" give a short status and offer the review digest (digest first, verdicts once read), and the rest one line: already working, or, after a quiet tick, the blocker table re-run and acted on |
 | "stop ..." (anything else) | not a stop: answer it. Only "stop the loop" stops it. "stop everything safely" is `checkpoint`'s |
 | "wrap up", "close out" | `todo-sync` closes its part and never deletes this list or the loop's blocks; the loop keeps running |
 | a restart or a quit ("before I restart", "before I quit") | `checkpoint` deletes the job first (marker PAUSED, `reason checkpoint`) and puts "resume the loop" first in the resume block. A break leaves the job and marker alone. A `reason user` pause gets no re-arm item |
-| anything else | answered first; the loop yields the foreground |
+| anything else | answered first; the loop yields the foreground. Asked why it stopped: re-run the table, act |
 
-Every message from the user first writes `last user message` (from `date +%Y-%m-%dT%H:%M%z`) into the state line.
+Every message from the user first writes `last user message` into the state line.
 **Posture** is PRESENT (under 15 minutes since it), NEARBY (under 2 hours) or AWAY (longer, or while an away mark is
 set). The away mark is cleared by the user's next message after the one that set it.
 Full routing and hand-offs: [references/routing.md](references/routing.md).
@@ -158,20 +153,20 @@ user.
    2 hours quiet) passed since `last beat`, say so once.
    Load or disk over its line: bookkeeping only, no heavy step.
 2. **Job age and renewal.** Re-arm after 6 days; ask for renewal on charter days 5 and 6.
-3. **Yield.** A request of the user's still in progress: end the tick with no output.
-4. **Health.** Disk, load, memory, other sessions, the user's branches and worktrees.
+3. **Yield.** A request of the user's still in progress: end the tick with one held line.
+4. **Health.** Disk, load (5-minute average, read alone, result seen before any builder starts), memory, other sessions, the user's branches and worktrees.
 5. **Verdicts.** Apply any the user gave since the last tick.
 6. **Act on what finished.** Subagent reports, CI, review threads: reply to every comment from anyone.
 7. **Roadmap changed?** Compare the commit read.
 8. **Pick** the next ready item; prefer independent work; stack freely when needed.
-9. **Work** one step in the loop's own worktree, by a subagent when heavy.
-10. **Decide and record** by the classes; push the ledger entry, then the todo list; no new step until the ledger is pushed. Every time comes from `date` in the writing command.
-11. **Done** means the check passes and a reviewer that did not build it agrees.
-12. **Report** by posture.
-13. **Speed.** Work left: 15-minute beat. Everything waits on the user or CI: 60-minute beat.
+9. **Work** one step in the loop's own worktree, by a subagent when heavy; every brief ends with the footer in tick.md.
+10. **Decide and record** by the classes; push the ledger entry, then the todo list; no new step until the ledger is pushed. **Every time written** is the output of `date +%Y-%m-%dT%H:%M%z` run in the command that writes it, never typed.
+11. **Done** means the check passes and a reviewer that did not build it agrees; the final verdict is mandatory.
+12. **Report** by posture; every tick posts at least one visible line.
+13. **Speed.** Work left: 15-minute beat. 60-minute beat only when tick.md's blocker table gives every open item an allowed reason.
 14. **Update the state line and the claim:** last beat, counters, last full report.
 
-A tick never opens a question panel: a due tick waits behind an open panel and runs right after the turn ends, so
+A tick never opens a question panel: a due tick waits behind an open panel, so
 questions are asked only in a turn the user started. Detail of every step: [references/tick.md](references/tick.md).
 
 ## 6. Where each step reads more

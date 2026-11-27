@@ -99,7 +99,7 @@ away-loop](../on-loop/README.md#why-it-exists-and-how-it-differs-from-away-loop)
    │ no                                                     ► CronList: exactly one
    │                          (CronCreate fails: keep the old job, say when the wake-up ends)
    ▼
- machine check ──► act on finished agents ──► check every PR the session opened ──► next step
+ load check ──► act on finished agents ──► check every PR the session opened ──► next step
    │                                                                                    │
    │                          log what it decided ◄──── queue what only you can decide ◄┘
    ▼
@@ -130,7 +130,7 @@ The procedure is [SKILL.md](SKILL.md). The agent loads it by its description whe
 | What | Where | Written by |
 | --- | --- | --- |
 | The plan, the decisions and the queue | the top of the session's todo list, which the `todo-sync` skill keeps | the agent |
-| The wake-up's id and creation time, the return one-shot's id and time, and the time of the last full report | the same list | the agent |
+| The wake-up's id and creation time, the return one-shot's id and time, the time of the last full report, and `held: <n>` (ticks held in a row) | the same list | the agent |
 | A full status report (optional) | the project's progress folder, if it keeps one, as `YYYY-MM-DD-HHMM-status.md` | the agent |
 
 The todo list has three sections added by this skill (SKILL.md calls the list "the todo file": it is the same
@@ -203,7 +203,7 @@ sections.
 | The job expired anyway (7 or 30 days passed, by version, so it fired one last time and deleted itself) | after that last tick, no more ticks; the todo list still holds the plan | ask the agent to arm a new loop |
 | A job fires in a resumed session whose plan is gone or consumed | the tick deletes its own job and says so in one line | nothing |
 | A tick cannot run its step (CI down, disk low, a refused action) | the status table names it under Blockers; a refused action goes in "Waiting for you" | read the queue when you return |
-| Every pipeline fails the same way at once | the agent checks the provider's status page first and reports an outage instead of debugging | wait for the provider |
+| The machine is over the load line | a "held" line each tick (bookkeeping only); after about 4 held ticks in a row, one message with the load, the line and the options | wait, stop the other work, or say a higher line |
 | You send a message while it works | the loop stops: it deletes the job, re-checks the sources and gives the summary | nothing |
 
 ## Limits
@@ -222,9 +222,17 @@ sections.
   for a long absence.
 - **It acts only within the session's own permissions.** It does not widen what you approved: merges you did not
   name, deletes, production writes, settings and big decisions are queued for you.
-- **It is a procedure, not a lock.** The agent follows it because the skill says so. Its rules (open pull requests
-  ready for review, never as drafts; one final verdict per phase; one install-heavy job at a time through the
-  project's heavy-work lock; what stays yours) are defaults that a project's own rules override.
+- **Heavy work is held while the machine is loaded.** The line is the 5-minute load average against about 70% of
+  the cores, shown as a number; a project's own written rules on heavy work win, otherwise only your words change it.
+  Load, free disk and memory pressure are read together before any builder or install starts. Over the line, under
+  memory pressure, or while the project's heavy-work lock is held, a tick does bookkeeping only; the `held: <n>`
+  counter in the plan header says so once at 4 and resets when the load clears. Installs also wait while free disk
+  is under 5 GiB. At most two install-heavy builders run at once, and every builder brief ends with the time budget
+  (about twice the step's normal run), "never start subagents" and the same four lines: commit only when the gate
+  passes, never disguise code to pass a check, stop every process you started, never print a secret or another
+  process's command line.
+- **It is a procedure, not a lock.** The agent follows it because the skill says so. Its rules (one final verdict
+  per phase; what stays yours) are defaults that a project's own rules override.
 - **It needs the `todo-sync` skill** for the plan and the queue.
 
 ## Working with a loop skill

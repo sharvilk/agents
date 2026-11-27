@@ -92,8 +92,7 @@ where; do not edit a `.gitignore` to make one.
 `<config>/todo-sync/<initiative>/<session-id>.md`, where `<config>` is `${CLAUDE_CONFIG_DIR:-$HOME/.claude}`, or in the
 list's own place when `todo-sync` finds it elsewhere (a list started before that folder existed stays in
 `<config>/todos/<initiative>/`), after reconciling the list with the `todo-sync` skill
-(reorganize before prune; never drop an open item). Anything other agents or sessions must see also goes in the
-project's tracker doc, through its normal PR.
+(reorganize before prune; never drop an open item).
 
 **6. Sweep for strays.** Run the scan again. Every remaining process in these repos that this session started is
 stopped: a polite signal (`kill <pid>`), then a forced one (`kill -9 <pid>`) if it is still there a few seconds later. A
@@ -190,15 +189,12 @@ the brief.
 - **"The agent reported done" is not "its processes are gone".** A background job can outlive its agent by hours, and
   its parent is the agent's idle shell, not PID 1, so a search for orphans under PID 1 misses it. Match by working
   directory and age, which is what the scan does.
-- **Pushing someone else's branch, or popping their stash.** The scan lists every worktree of the repo, other
-  sessions' included, and the stash is shared by all of them. Act only on what this session made.
-- **Committing half-finished work to make the tree "clean".** The disk survives a restart; a WIP commit on a PR branch
-  runs CI and reads as done. Leave edits uncommitted unless the user asks or the disk is at risk.
-- **A resume block that only this conversation can read.** "Continue the fix round" means nothing to a fresh session;
-  name the branch, the commit, the file and the next command.
-- **Resuming into a summary.** After a restart the user's "continue" means do the work. One line on what resumes,
-  then the work.
-- **Trusting the block after the restart.** CI finished, someone merged, a branch moved. Re-read each source first.
+- **Another session's worktree or stash.** The scan lists every worktree of the repo and the stash is shared by all
+  of them: act only on what this session made, and never apply, pop or drop a stash you did not create.
+- **A WIP commit to make the tree "clean".** Leave edits uncommitted unless the user asks or the disk is at risk
+  (step 3).
+- **Resuming into a summary, or trusting the block.** After a restart "continue" means do the work, after
+  re-reading each source (Part 2, steps 3 and 4); write each "Next" so a fresh session could do it.
 
 ## When it cannot conclude
 

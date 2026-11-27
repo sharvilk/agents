@@ -52,8 +52,8 @@ Write every time with `date +%Y-%m-%dT%H:%M%z`, so a later tick can compare it w
 
 1. **Write the plan into the session's todo file** (the list `todo-sync` keeps for this session; it knows where
    that is, including a list started before its folder existed), at the top, in three sections:
-   - **Away plan:** a header line with the start time, the wake-up ids and times, and `last full report: <time>`
-     (the start time at first); then the open items in the order they will be worked, each with its branch, PR,
+   - **Away plan:** a header line with the start time, the wake-up ids and times, `last full report: <time>`
+     (the start time at first) and `held: 0`; then the open items in the order they will be worked, each with its branch, PR,
      file or command, and its next step. Highest value first; items that need a reviewer or CI to finish go before
      items that need many installs.
    - **Decisions made while away:** empty for now. Each entry gets the time, the decision and the reason.
@@ -115,22 +115,29 @@ it already stopped, do nothing.
    - If `CronCreate` fails (scheduler off, permission refused, a task limit), keep the old job. Write "wake-up
      ends when the old job expires (7 or 30 days after <old creation>, by version); could not re-arm" in the status table and in "Waiting for you". Never claim
      the loop continues past that time.
-1. **Check the machine** before anything heavy: disk free, load, memory, and who holds the project's heavy-work
-   lock, if the project has one. Note anything out of bounds.
-2. **Act on what finished.** For each subagent that reported, take its next step: a fix round, independent
-   reviewers with non-overlapping scopes, or, by default, one final verdict per phase. Read the diff of every fix
-   yourself before calling it done. A builder's report is a claim, not proof.
-3. **Check every PR this session opened:** CI state, new reviews and **unresolved review threads**. By default
-   every comment gets a fix or a reasoned reply, then the thread is resolved. A PR is not "merge-ready" while a
-   thread is open.
-4. **Start the next unblocked step** from the Away plan. By default open PRs ready for review, not as drafts, and
-   keep at most two install-heavy builders at once.
+1. **Hold heavy work while the machine is loaded.** The load line is the 5-minute load average against about 70%
+   of the machine's cores, rounded and shown as a number (7 on a 10-core machine). Read the load, free disk and
+   memory pressure together, on their own, with the result seen before any builder, install or other heavy step
+   starts. Over the line, or with memory pressure reported, or while another job holds the project's heavy-work lock
+   (if it has one), the tick does bookkeeping only (no builder, build, test run or install), and a running job
+   finishes. Keep `held: <n>` in the Away plan header: add 1 for each tick held, reset it to 0 when the load
+   clears. At `held: 4`, say so once: the load, the line and the options (wait, stop other work, raise the line);
+   then one "held" line per tick until it clears. Never go silent. Installs also wait while free disk is under 5
+   GiB, or the project's own floor. A project's own written rules on heavy work win; otherwise only the user's
+   words change the line.
+2. **Act on what finished.** For each subagent that reported, take its next step: a fix round, or, by default, one
+   final verdict per phase.
+3. **Check every PR this session opened:** CI state and new reviews. Each new comment gets a fix or a reasoned
+   reply, then its thread is resolved; one only the user can answer is queued for them.
+4. **Start the next unblocked step** from the Away plan, with at most two install-heavy builders at once. Every builder brief ends
+   with the time budget (about twice the step's normal run), "never start subagents" and four lines: commit only when the gate itself passes; never
+   disguise code to get past a check; stop every process you started; never print a secret or another process's
+   command line.
 5. **Decide what you may decide:** minor design choices, wording, test shape, the order of work, a severity.
-   Log each one in "Decisions made while away", with the time from `date`, and the reason.
+   Log each one in "Decisions made while away", with its time and the reason.
 6. **Queue what you may not decide.** Get it ready first: open the PR, or write the options with a
    recommendation. Then add it to "Waiting for you" and move on.
-7. **Keep the repo record current:** the project's tracker or roadmap, through its normal branch. Run the
-   project's documentation checks after `git add`.
+7. **Keep the repo record current:** the project's tracker or roadmap, through its normal branch.
 8. **Reply with one status table**, new information only:
 
    | | |
@@ -214,26 +221,8 @@ The loop ends on the user's **first message back**, or at the end time if one wa
 
 ## Traps
 
-- **Future timestamps in docs.** A tracker line stamped with a guessed time ("~23:00") lands minutes ahead of the
-  clock, so it reads as a time that has not happened yet. Run `date +%Y-%m-%dT%H:%M%z` before writing a time, and
-  write the time it is.
-- **"Merge-ready" with open threads.** A green CI and a passing verdict say nothing about unresolved review
-  comments. Query the threads before the word "ready".
-- **Disk runs out quietly.** Installs grow caches that are never cleaned. Check free space before each install,
-  serialize installs through the project's heavy-work lock if it has one, delete `node_modules` right after the
-  checks, and set a stop line for free disk space, below which installs wait. Freeing space that is not yours (other sessions' worktrees, caches) waits for the user.
-- **External outages look like your bug.** When every pipeline fails the same way at once, it can be an outage at a
-  shared provider (CI, the git host, a package registry), not your change: check the provider's status page before
-  debugging your code or re-running anything. After it recovers, a webhook lost during the outage means no
-  pipeline exists for that commit. Trigger a fresh one on the branch head instead of
-  re-running an older one.
-- **A permission denial is a queue item.** When the harness or its classifier refuses an action (an admin merge,
-  a write), do not route around it. Put it in "Waiting for you" with what it was for.
-- **Never `sleep` in the foreground to wait.** Watch CI, rollouts and agents with a background command that exits
-  on the terminal state, and act when it notifies.
-- **Subagents report confidently wrong things.** "Not included in branch X" or "the role cannot do Y" can both
-  be false. Check with git or a read-only probe before acting on such a claim, and run a control
-  that must succeed.
+- **A permission denial is a queue item.** When the harness or its classifier refuses an action, do not route
+  around it. Put it in "Waiting for you" with what it was for.
 - **A wake-up is a heartbeat, not a deadline.** A recurring job can run up to half its period late. It lives in
   the session: it fires only while Claude Code is running and idle, so it stops when the session exits, and while the
   machine sleeps Claude Code is not running, so nothing fires. It also expires, 7 days after creation on versions before 2.1.330 and 30 days from it (see
@@ -242,8 +231,8 @@ The loop ends on the user's **first message back**, or at the end time if one wa
 ## When it cannot conclude
 
 - **Everything left needs the user:** say so on the next tick, keep ticks to one line, and keep the summary ready.
-- **The machine is out of bounds** (disk, load, memory): stop starting builders, finish or pause the running ones,
-  and queue the cleanup the user must approve.
+- **The machine is over its line** (step 1): hold heavy work, let the running ones finish, and queue any cleanup
+  the user must approve.
 - **The session is about to end** (a restart, a context limit): run `checkpoint` so the next session can resume.
 - **The user returns mid-tick:** finish the step in flight only if stopping halfway would leave a broken state.
   Otherwise stop and summarise.

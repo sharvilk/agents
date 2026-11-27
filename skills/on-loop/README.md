@@ -74,6 +74,7 @@ An example of each message is under [Examples](#examples).
 | **Claim** | A small file that says which session holds the loop for a repo, so two loops never share one. |
 | **Posture** | How loud a tick is, chosen by how recently you typed: PRESENT, NEARBY or AWAY ([How loud it is](#how-loud-it-is)). |
 | **Never list** | The actions the loop never takes: merge, publish, deploy, spend, any delete beyond the clean-up of its own merged or closed PRs, and the rest of class D. |
+| **Blocker table** | The table of every roadmap item that is not done, each with the exact thing that blocks it, which of four allowed reasons that is, and the words that unblock it. The loop writes it before it may switch to the quiet beat and shows it when the quiet beat starts ([Picking](#what-a-tick-does), [How loud it is](#how-loud-it-is)). |
 | **Wind down** | The orderly stop: delete the jobs, stop its own processes, write a final report, list the clean-up of open branches for you. |
 | **QUIET, PARK, STOP** | What the loop does at a limit: stop starting new items; set one item aside; wind down ([Limits and when it stops](#limits-and-when-it-stops)). |
 
@@ -184,7 +185,8 @@ Roadmap: docs/roadmap.md at 4be21a0. Scope: R1 to R6. Autonomy: standard.
 Models: project rule (cheap builders, one strong verdict).
 Single-threaded: no.
 Limits: lifetime 7 days · silence quiet 24 h, stop 72 h · fix rounds 3 · same failure 3/5
-        · no progress 3 beats · parked 3 · in flight 2.
+        · no progress 3 beats · parked 3 · in flight 2 · load line 7 of 10 cores.
+Live checks: none.
 Branches: feature/<item>-loop.
 Ledger: docs/decisions/, log branch docs/decision-log-loop, PR <link>.
 Approved: "yes, start it" on 2026-11-24.
@@ -193,7 +195,8 @@ Standing answers: none yet.
 ## On-loop state
 job 5c0e91a2 created 2026-11-24T09:03+0000, speed work · last beat 2026-11-24T14:07+0000
 last user message 2026-11-24T13:41+0000 · away mark none · last full report 2026-11-24T12:05+0000
-counters: fix rounds R3: 0 · same failure none · beats without progress 0 · parked in a row 0
+counters: fix rounds R3: 0 · same failure none · beats without progress 0 · parked in a row 0 · held beats 0 ·
+live checks spent 0 of 0
 roadmap commit read: 4be21a0 · claim: held
 ```
 
@@ -209,7 +212,7 @@ bounds in the charter.
 Ticks: fire only while Claude Code is running and idle (a closed app, an exited session or a
 sleeping machine means none); a tick due while the agent is busy or a question panel is open
 waits and runs right after the turn ends.
-Beat: 7, 22, 37 and 52 minutes past each hour; hourly when everything waits on you or CI.
+Beat: 7, 22, 37 and 52 minutes past each hour; hourly only when every open item is blocked for a listed reason.
 Mode: multi-threaded.
 Stop it: say "stop the loop"; "pause the loop" keeps the charter and "resume the loop" brings
 it back.
@@ -304,22 +307,28 @@ the skill again.
    1  stop rules   lifetime · silence · no progress · same failure · parked items ──► WIND DOWN
                    more than two beats missed (30 min working, 2 h quiet) ──► say so
    2  renewal      day 5 and 6 of 7 ──► ask in the report; never re-arm past the charter unasked
-   3  yield        is a request you typed still in progress? ──► end the tick with no output
-   4  health       disk · load · memory · other sessions · your own branches and worktrees
+   3  yield        is a request you typed still in progress? ──► end the tick with one held line
+   4  health       disk · load (read alone, seen before any builder starts) · memory · other
+                   sessions · your own branches and worktrees
    5  verdicts     apply any keep / change / veto you gave since the last tick
    6  finished     act on agents, CI and review threads that completed; reply to every comment
                    on its own PRs
    7  roadmap      re-read it; changed since the charter? say what, re-plan
-   8  pick         next roadmap item that is ready, not waiting on a decision and unclaimed
-                   (an unmerged PR does not block)
-   9  work         ONE step of ONE item, in the loop's own worktree, by a subagent when it is heavy
+   8  pick         next roadmap item that is ready, not waiting on a decision that changes
+                   what gets built, and unclaimed (an unmerged PR, a parked dependency or a
+                   merge-only decision does not block building)
+   9  work         ONE step of ONE item, in the loop's own worktree, by a subagent when it is heavy;
+                   every brief ends with the same four lines (gate status, no disguised code, stop
+                   your processes, print no secrets)
   10  decide       each fork ──► class A: decide, log · B: decide, log in full, flag
                    C: prepare, queue · D: never; record it
-  11  done         the check passes and a reviewer that did not build it agrees
+  11  done         the check passes and a reviewer that did not build it agrees; one strong verdict
+                   per item is mandatory
   12  report       by posture: one line (you present) · table (nearby) · full report (2 hours,
-                   milestone)
+                   milestone); every tick posts at least one visible line
   13  speed        work left ──► work beat (15 min)
-                   everything waiting ──► quiet beat (60 min) + a watcher
+                   every open item blocked for an allowed reason (the blocker table)
+                   ──► quiet beat (60 min) + a watcher
   14  state        last beat, counters and the claim's last beat refreshed
 
  A MESSAGE FROM YOU (any time; an ordinary message does NOT stop the loop)
@@ -422,11 +431,21 @@ The numbered steps are in Figure 3. The points that matter:
 - **The loop yields.** A tick fires only between your turns, and a tick due while a question panel is open waits
   and runs right after the turn ends (MEASURED: probe (c) in
   [What was tested, and what was not](#what-was-tested-and-what-was-not)); if a request of yours is still running,
-  the tick ends with no output.
+  the tick ends with one held line.
 - **Picking.** Finish what is in flight; then the roadmap's own order, never the loop's taste; skip items that are
   not ready, waiting on a queued decision or an unanswered question, claimed, or touching files you or another
-  session is changing; ties go to the item that unblocks the most, then the smallest. An unmerged PR does not
-  block: the next item may stack on it. Every skip is written down; an item never disappears.
+  session is changing; ties go to the item that unblocks the most, then the smallest. Every skip is written down; an
+  item never disappears. A blocker stops only the part of an item that needs it, so before skipping an item the
+  loop looks for the part that does not:
+  an unmerged dependency does not block (stack on its branch; the loop never merges it);
+  a parked dependency does not block (build against what exists behind a narrow adapter, and record the follow-up in
+  the PR body, a flagged class B ledger entry with its undo and the roadmap view, and propose it as a roadmap row in
+  a PR of its own that merges only on your go);
+  a decision that gates only the merge or a default does not block (a normal PR under the project's own standards,
+  never marked SPIKE, with the merge gate in its body);
+  a large item does not block (split it and start the independent phase).
+  If no item is ready, the loop writes the blocker table before concluding, and a row with no allowed reason is the
+  item it picks.
 - **Independent work first.** Each item on its own branch off the default branch with its own PR. When work truly
   needs stacking it stacks, with no limit on depth, and stacked PRs are fine to review.
 - **"Done" is the check plus a second opinion.** A reviewer that did not build the item agrees. The builder never
@@ -483,7 +502,7 @@ early by its own background work. A tick is one wake-up; a beat is the interval 
   work beat    7,22,37,52 * * * *   every 15 min (runs 0 to 7.5 min late)
                while an item can move
   quiet beat   17 * * * *           every 60 min (runs 0 to 30 min late)
-               while everything waits on you or CI
+               while every open item is blocked for an allowed reason
   events       a background agent reports · a watcher on PR/CI state exits
                ──► the session wakes by itself
 
@@ -526,9 +545,9 @@ The five big kinds are architecture, security boundaries, public contracts, scop
 | Class | Example decisions |
 | --- | --- |
 | **A: decide, log** | the name of an internal function, file or test · where a new test goes and what shape it has · the order of two steps inside an item · the wording of an error message · which existing helper to reuse · fixing a check its own change caused · the severity of a review finding · a comment or README paragraph the item requires · bumping a timeout in its own test |
-| **B: decide, flag** | an internal data structure or module boundary the roadmap leaves open · which of two algorithms, when both pass the check · how an edge case behaves when the spec is silent · the layout of a new config section nothing outside the repo reads · **changing what an existing test expects, with the reason** · splitting one item into two PRs · declining a reviewer's suggestion, with the reason · skipping an item because it is blocked · **adding a dependency, inside the guardrails below** |
+| **B: decide, flag** | an internal data structure or module boundary the roadmap leaves open · which of two algorithms, when both pass the check · how an edge case behaves when the spec is silent · the layout of a new config section nothing outside the repo reads · **changing what an existing test expects, with the reason** · splitting one item into two PRs · declining a reviewer's suggestion, with the reason · skipping an item because it is blocked · **a narrow, named allowance in a check for one legitimate case** (never a rewrite of the code to dodge it) · **adding a dependency, inside the guardrails below** |
 | **C: queue, prepared** | anything in a public contract: a CLI flag, an exported API, a file format, a schema · a new service, queue, database or table, or a major version of a dependency · anything touching auth, secrets, permissions or what data leaves the machine · changing the scope, order or check of a roadmap item, or adding one · a migration of stored data · changing CI, release or build configuration · a licence question · a reply in your name outside its own PRs' review threads (an issue, someone else's PR) · anything two project documents disagree about |
-| **D: never** | merging or approving a PR · pushing to the default or a release branch · force-pushing · `--no-verify` · any delete other than the clean-up of its own merged or closed PRs (files outside its change, other branches and worktrees, stashes, resources, data): its open branches at wind-down, a veto and the ledger branch while its PR is open are listed with the exact commands for you · enabling auto-merge or a merge queue · closing or reopening PRs or issues · changing repository settings or memory · publishing, releasing, tagging, deploying · spending money · writes to production · changing settings, `CLAUDE.md`, `AGENTS.md`, hooks or this skill's files · changing its own charter or limits · network, VPN or system settings · touching another session's worktree, branch or processes · printing secrets · deleting, skipping or weakening a test to make a check pass · working around a refused permission |
+| **D: never** | merging or approving a PR · pushing to the default or a release branch · force-pushing · `--no-verify` · any delete other than the clean-up of its own merged or closed PRs (files outside its change, other branches and worktrees, stashes, resources, data): its open branches at wind-down, a veto and the ledger branch (kept, even after its PR merges) are listed with the exact commands for you · enabling auto-merge or a merge queue · closing or reopening PRs or issues · changing repository settings or memory · publishing, releasing, tagging, deploying · spending money · writes to production · changing settings, `CLAUDE.md`, `AGENTS.md`, hooks or this skill's files · changing its own charter or limits · network, VPN or system settings · touching another session's worktree, branch or processes · deleting, skipping or weakening a test to make a check pass · working around a refused permission |
 
 - **Class C** includes everything short of deciding: the options, what each costs, a recommendation, and what it
   would do next under each. It may build **one clearly labelled throwaway spike branch** per queued item (never
@@ -549,7 +568,7 @@ The five big kinds are architecture, security boundaries, public contracts, scop
 - **The loop deletes only what its own merged or closed PRs left behind.** Once a PR it opened merges or closes, it
   removes that PR's worktree and deletes its branch, locally and on GitHub, after checking the worktree has nothing
   uncommitted and nothing unpushed; if something is, it lists the clean-up with the exact commands and you run it.
-  A veto reverts with new commits; at wind-down, open branches and the ledger branch (while its PR is open) are
+  A veto reverts with new commits; at wind-down, open branches and the ledger branch (kept, even after its PR merges) are
   listed for you to remove. Other people's branches, stashes and everything else stay yours. Only its own
   scratch files in the session scratchpad, and the dependency folders and build output it produced in its own
   worktree, are its to remove.
@@ -584,7 +603,10 @@ an index, so that the diagrams in the entries do not bloat what each tick reads;
 must read is in the repo, because the todo list is not a handoff. The ledger lives in the project's own
 decision-log or progress folder when it has one, else the loop proposes one the first time and asks. Entries go on
 one long-lived log branch with one open PR, pushed after every entry so a crash loses nothing; you merge that PR
-whenever you like, and the loop never does. The fallback, when a project wants no such branch, is a git-ignored
+whenever you like, and the loop never does. At most one ledger PR is open and at most one is opened per day, so an
+item never gets a ledger PR of its own; the branch is kept after its PR merges, and the next day's PR is opened from
+it. When you merge a work PR, its entries are marked accepted in the next ledger push, and an entry that was changed
+or vetoed keeps its status (`changed → D-…` or `vetoed`). The fallback, when a project wants no such branch, is a git-ignored
 folder in the main checkout; the loop says plainly that a crash could lose entries. The entry format is in
 [references/ledger-entry.md](references/ledger-entry.md).
 
@@ -664,10 +686,11 @@ be in the same session, so the volume follows where you are.
  Figure 10 (EXPECTED): how loud a tick is, by how recently you typed
 
    last message from you          posture   a tick replies with
-   under 15 minutes ago           PRESENT   one gauge line; nothing if a request of yours is running
+   under 15 minutes ago           PRESENT   one gauge line; one held line if a request of yours is running
    15 minutes to 2 hours ago      NEARBY    the status table, new information only
    over 2 hours ago               AWAY      the status table; the full report every 2 hours and at
-                                            each milestone
+                                            each milestone (the full report is required in every
+                                            posture)
    an away mark ("I'm going to    AWAY      the same, until your next message clears the mark
    sleep")
    any time, on request           -         "status": the table · "report": the full report ·
@@ -691,8 +714,31 @@ roadmap finished) always get the full report. Reports are shown in the chat and 
 in the project's progress folder, if it keeps one, committed on the log branch. Outside the session there is
 nothing in this version: no notification, no channel.
 
+**Every tick posts at least one visible line**, starting with `on-loop ·`: what it did, or why it held (load, disk,
+a limit, waiting on you or CI, or a yield: "on-loop · held: your request is still running"). Ticks fire only while
+the session is idle, so a busy session swallows them and a missing line does not mean the loop stopped. Ask "is the
+loop on?" and the answer is built from `CronList` and the state line: the job id, the last beat, the next beat and why
+a tick may be waiting; a tick that waited is late, not lost. Reports stay in the chat.
+
 What a tick never does: restate earlier ticks, post a table when nothing changed, open a question panel, or print a
 diagram nobody asked for while you are present.
+
+**The quiet report.** The tick that enters the quiet beat shows the blocker table once, even while you are present
+(it replaces that tick's gauge line): one row per item not done, with the blocker, its allowed reason and the words
+that unblock it. A bare "quiet tick, nothing new" is not enough. The allowed reasons are only these four: a decision
+that changes what gets built; something that exists only after you merge another item and its release, deploy or
+package publish runs (every other dependency is built ahead on a branch, and the loop never merges); a limit in
+force (during the silence limit every row reads "silence limit"); or you have claimed the item or someone else is
+changing its files. The table is shown again when a row changes, in each 2-hour report and on "status"; other quiet
+ticks post one line pointing to it.
+
+```
+on-loop · quiet: 3 items, none can move · decisions 4 pending · next beat ~15:17
+item | blocked by                              | reason     | unblocked by
+R5   | its design choice changes what is built | decision   | your answer to Q2 ("use option B")
+R7   | needs R6 merged and its release run     | merge-only | "merge 41", then the release
+R9   | free disk under 5 GiB (installs wait)   | limit      | free some disk, or "set the disk line to 3"
+```
 
 ### Limits and when it stops
 
@@ -714,15 +760,15 @@ takes that rule, because it cannot keep going forever: **no charter with limits,
 | --- | --- | --- | --- | --- |
 | 1 | **Lifetime** | the charter's 7 days from the start | renewal asked on day 5 and day 6 in the reports; with no renewal, STOP at the end | a forgotten loop must end; a renewal re-reads the roadmap and the charter. Independent of the job's expiry |
 | 2 | **Silence** | no message from you for 24 hours | QUIET at 24 hours, STOP at 72 | always-on assumes someone is reading. A weekend fits; a forgotten loop does not |
-| 3 | **Fix rounds on one item** | 3 | PARK the item with the failing output | a third failed fix usually means a wrong assumption, not a typo |
+| 3 | **Fix rounds on one item** | 3; doc-only and tracking edits made after the final verdict do not count | PARK the item with the failing output and the last verdict: no new PR (a comment on an existing one), a class C entry with the blockers and the options, no draft PRs | a third failed fix usually means a wrong assumption, not a typo; a doc fix the verdict asked for changes no behaviour |
 | 4 | **The same failure** | the same check or error 3 times on one item; 5 times across items | PARK; at 5, STOP | one open-source loop's circuit breaker uses 3 no-progress and 5 same-error loops |
 | 5 | **No progress** | 3 attempted work beats in a row with no commit, no PR change and no decision | STOP, with what it was trying. A beat that yielded to you, was held by disk or load, waited on you or CI, or ran while a builder was inside its budget does not count | a loop that only talks burns tokens |
 | 6 | **Parked items** | 3 parked in a row | STOP | the roadmap or the environment is wrong, not the items |
-| 7 | **Roadmap exhausted** | done, or every remaining item blocked or not ready | QUIET; it proposes what could come next for your yes | it never invents work. A built-in maintenance prompt falls back to "cleanup passes"; the on-loop does not, because idle cleanup is where drift and cost come from |
+| 7 | **Roadmap exhausted** | done, or every remaining item has an allowed blocker reason (the blocker table); an item merely not yet started is not blocked | QUIET; it proposes what could come next for your yes | it never invents work. A built-in maintenance prompt falls back to "cleanup passes"; the on-loop does not, because idle cleanup is where drift and cost come from |
 | 8 | **Usage limit reached** | Claude Code reports a usage limit | carries on at the next tick after the reset (Claude Code's default) | it reacts to the notice only; no gauge |
 | 9 | **Disk** | free space below the project's own minimum for installs, or 5 GiB if it sets none | no installs or builds; queue the cleanup (the loop never deletes to make room) | quiet disk exhaustion |
-| 10 | **Load and memory** | load above half the cores, or memory pressure reported | no new heavy job; let the running one finish | stops the machine running out of memory or CPU |
-| 11 | **Stray processes** | every job it starts has a budget of about twice its normal run | stop it by PID (polite signal, then forced) at the budget; list its own strays before each report | a job can outlive its agent by hours |
+| 10 | **Load and memory** | the 5-minute load average above the charter's load line (default about 70% of the cores, shown as a number; only your words change it), or memory pressure reported | no new heavy job; let the running one finish; one message after about 4 held beats in a row, with the busiest processes (PID, CPU, working directory) and your options; a builder that started over the line is stopped, its brief queued and restarted at the first tick under the line | stops the machine running out of memory or CPU; the 5-minute average ignores short spikes that would hold the loop for an afternoon |
+| 11 | **Stray processes** | every job it starts has a budget of about twice its normal run | stop it by PID (polite signal, then forced) at the budget; list its own strays after every agent's report and before each report of its own | a job can outlive its agent by hours |
 | 12 | **Context** | a compaction, or a restart | re-read the state from the files; run todo-sync's list recovery if the list looks short; after a restart, use `checkpoint`'s resume | nothing lives only in the chat |
 | 13 | **Items in flight** | the charter's line, default 2; one heavy job at a time | wait | the machine and review focus: a pacing line, not a cap on PRs waiting for you |
 
@@ -769,8 +815,14 @@ works down this list:
    1  another ready roadmap item      independent work is unlimited
    2  the same item, other work       tests, docs, the half that doesn't depend on the choice
    3  prepare what's queued           options and a throwaway spike for a decision waiting on you
-   4  only if none of these exist     wait, and tell you the ONE decision whose review unblocks it
+   4  only if none of these exist     write the blocker table; if every row has an allowed reason,
+                                      wait, and tell you the ONE decision whose review unblocks it
 ```
+
+What does not block building: an unmerged dependency (stack on its branch), a parked dependency (a narrow adapter,
+with the follow-up recorded), a decision that gates only the merge or a default (a normal PR with the merge gate in
+its body) and a large item (split it, start the independent phase). The loop never merges any of them; your merge
+stays the decision.
 
 The cost, stated honestly: after a long stretch the review list can be long. The digest shows flagged decisions first
 and roots first, so you start with what matters. The reasons there are no caps are under
@@ -837,8 +889,8 @@ The routing by state, shortened (the full table is in [references/routing.md](re
 
 | Phrase | Nothing armed | away-loop armed | on-loop ARMED | on-loop PAUSED | on-loop ENDED, entries pending |
 | --- | --- | --- | --- | --- | --- |
-| "I'm back", "good morning", "back online"; "continue", "carry on", "keep going" | checkpoint resumes, if a resume block exists | away-loop stops and summarises ("continue": already working) | resume block: checkpoint resumes (a loop it paused only). None: the on-loop gives a short status and the review offer ("continue": one line, already working) | resume block: checkpoint re-arms a `reason checkpoint` pause only. None: not answered | not answered by the loop |
-| "resume the loop"; a bare "resume" with no resume block | nothing to resume | already working | already working | the on-loop resumes (charter clock kept) | nothing to resume |
+| "I'm back", "good morning", "back online"; "continue", "carry on", "keep going" | checkpoint resumes, if a resume block exists | away-loop stops and summarises ("continue": already working) | resume block: checkpoint resumes (a loop it paused only). None: the on-loop gives a short status and the review offer ("continue": one line, already working, unless the last tick was quiet: then it re-runs the blocker table and acts) | resume block: checkpoint re-arms a `reason checkpoint` pause only. None: not answered | not answered by the loop |
+| "resume the loop"; a bare "resume" with no resume block | nothing to resume | already working | already working, unless the last tick was quiet: then it re-runs the blocker table and acts | the on-loop resumes (charter clock kept) | nothing to resume |
 | a bare "resume", with a "Resume here" block | checkpoint resumes | already working | checkpoint resumes | checkpoint re-arms a `reason checkpoint` pause only | not answered by the loop |
 | "I'm going to sleep", "keep working while I'm away", "work overnight", "I'm stepping away" | away-loop arms | already armed | the on-loop stays armed and sets its away mark, in any wording; posture becomes AWAY | away-loop does not arm: one line says the on-loop owns the session | away-loop arms |
 | "review", "keep/veto/change <ids>" | no skill | no skill | the on-loop | the on-loop | the on-loop |
@@ -894,7 +946,7 @@ What the on-loop reuses from other skills, and what it changes (the full list is
 | away-loop | the tick prefix that tells a tick from a typed message | a different prefix |
 | away-loop | the status table and seven-section full report, elapsed-time cadence, saved snapshots | one more row, two more sections; posture decides which is shown |
 | away-loop | the three todo-list sections (plan, decisions, waiting) | plan becomes the roadmap view; decisions become an index into the ledger |
-| away-loop | the list of known failure modes to avoid | all kept |
+| away-loop | the list of known failure modes to avoid | only the wake-up trap (a heartbeat, not a deadline) is copied; the rest is general practice |
 | away-loop | "Never while away" | kept and extended (class D) |
 | todo-sync | nothing leaves the list unconfirmed; reorganise before prune; keep the detail | roadmap items and skipped items follow it |
 | checkpoint | the scan of machine, worktrees and processes; the resume block | the block names the loop and its charter |
@@ -948,7 +1000,7 @@ The todo list is not a handoff: everything another session or you must read is i
 | 6 | Runaway cost | no charter without limits; quiet beat plus a watcher; no-progress, same-failure and parked stops; silence limit |
 | 7 | It collides with your work | own worktrees and branches; overlap check before picking; your claim wins at once; never touches the main checkout |
 | 8 | Two loops on one repo | one loop per session; one on-loop per repo by a claim file; others' branches read-only |
-| 9 | Noise | posture: one line when present, nothing while your request runs |
+| 9 | Noise | posture: one line when present, one held line while your request runs |
 | 10 | The loop dies quietly | the arming message says when ticks fire and do not; reports carry the last beat's time; a stale claim is reported |
 | 11 | A stale tick after a resume | the stale-tick rule deletes the job |
 | 12 | Context rot over days | all state in files; heavy work in subagents; a fresh session at each renewal |
@@ -982,6 +1034,8 @@ after `/compact` the pane showed "Skills restored".
 
 **Not verified:**
 
+- The blocker table rule (no quiet beat until every open item has an allowed reason) is EXPECTED, not measured, until
+  a run shows it.
 - The claim that no tool keeps a reviewable ledger of its own decisions rests on one search (see
   [Prior art](#prior-art)).
 - The name screen under [Names considered](#names-considered) covers npm and GitHub repo names only.
@@ -1003,22 +1057,28 @@ after `/compact` the pane showed "Skills restored".
 | The charter reaches day 5 and 6 | renewal asked for in the report | say "renew the loop", or let it end |
 | The charter ends, or you do not renew | wind down and the final report; the loop stops | say "start the on-loop" again |
 | 24 hours, then 72 hours, without a message from you | QUIET at 24 hours: no new items, open PRs tended; STOP at 72 hours, with a final report | send a message; restart it after a STOP |
-| The roadmap is exhausted, or everything left is blocked | QUIET; a proposal of what could come next | approve some of it, or stop |
+| The roadmap is exhausted, or every open item has an allowed blocker reason | QUIET; the blocker table, then a proposal of what could come next | approve some of it, or stop |
+| The loop went quiet but an item could move | the blocker table in the first quiet reply shows it: a row with no allowed reason is picked up, and your "keep going" or "isn't it supposed to keep going?" re-runs the table and acts in the same turn | nothing |
 | A roadmap file was edited under it | "roadmap changed: ..." and a re-plan | confirm or revert |
 | A fix round fails 3 times on an item | the item is PARKED with the failing output | look at it, or say what to try |
+| The third fix round ends with a final verdict still "not done" | the branch is pushed; no new PR (a comment on the existing one); a class C entry with the blockers, the options and the words that unblock it; the item is marked parked in the todo list's Roadmap view | finish it by hand, change the item's scope, or drop it |
 | The same failure 3 times on one item, or 5 across items | PARK, then STOP | read the report |
 | 3 work beats with no progress | STOP, with what it was trying | read the report |
 | 3 parked items in a row | STOP: the roadmap or the environment looks wrong | read the report |
 | A refused permission | the action goes into "Waiting for you" with what it was for; no route around it | allow it, or do it yourself |
 | An action that is class C or D | queued with options and the exact words that unblock it, never done | say the words |
 | Disk or load out of bounds | no installs, builds or heavy jobs (no build, test run, install or subagent); the tick does bookkeeping only and says so once when it starts and once when it clears; the cleanup is queued for you | free the space yourself, or wait |
+| Load held the loop for about 4 beats in a row | one message with the 5-minute load, the busiest processes (PID, CPU, working directory; "this session" when it is the session itself) and your options; then it does not repeat that message until it clears (each held tick still posts its one held line) | wait, stop the other work, or say "set the load line to <n> cores" |
+| A builder started while load was over the line | it is stopped; its worktree is checked clean and free of left-over processes; the same brief is queued and restarted at the first tick under the line; one line says so | nothing |
+| An item needs a live check with a side effect and the charter allows none, or its allowance is spent (the state line's `live checks spent` counter) | the check is queued as a class C ask, never run; a check that ran before the final commits is described in the PR as proving only that commit | say how many live checks it may run |
 | Claude Code reports a usage limit | the loop carries on at the next tick after the reset | nothing |
 | A dependency fails a guardrail | it becomes class C: queued with the options | decide |
-| A merged PR's decisions | marked `accepted (merged <date>)` | nothing |
+| A merged PR's decisions | marked `accepted (merged <date>)` in the next ledger push; a superseded entry is never marked accepted | nothing |
 | You veto a decision that other work builds on | the cascade is stated as its own line ("cascade: none" if empty) before any revert runs, then the loop reverts newest first in the same turn: the veto is the go, so it does not wait | read it; reply if the cascade is wrong |
 | A tick is stuck behind a permission panel | nothing runs until you answer it; the gap rule then reports the missed beats | answer it, choosing the option that keeps allowing that folder |
 | A veto of a decision already merged | a revert PR for you to merge, and a redo on the roadmap view | merge it |
-| A tick fires while you are mid-request | no output | nothing |
+| A tick fires while you are mid-request | one held line ("on-loop · held: your request is still running") | nothing |
+| You ask "is the loop on?" | the job id, the last beat, the next beat and why a tick may be waiting | nothing |
 | The session exits, the app closes or the machine sleeps | no ticks until Claude Code runs again; the next tick's report names the gap | nothing, or re-arm |
 | A restart or quit | `checkpoint` deletes the loop's job first and marks it PAUSED, reason checkpoint; the resume block says "resume the loop"; after "continue" the on-loop's resume step re-arms it and the clock is not reset. A break leaves job and marker alone; a loop you paused yourself gets no re-arm item | run `checkpoint` |
 | The tick finds the marker missing a job (the app was exited with "Exit and stop tasks", or the job was deleted) | one line: the loop's job is gone, with an offer to re-arm; it never re-arms silently | say yes to re-arm, or leave it |
@@ -1049,7 +1109,7 @@ after `/compact` the pane showed "Skills restored".
 | [references/wind-down.md](references/wind-down.md) | stopping, pausing and ending, with the clean-up listing |
 | [references/routing.md](references/routing.md) | the phrase routing and the hand-offs |
 | [references/ledger-entry.md](references/ledger-entry.md) | the decision-ledger entry template, with a class B and a class A example and what the review line becomes |
-| [references/shared-with-away-loop.md](references/shared-with-away-loop.md) | the parts copied from away-loop (re-arm sequence, scheduling check, stale-tick rule, status table, full report, traps), with what changed for this skill |
+| [references/shared-with-away-loop.md](references/shared-with-away-loop.md) | the parts copied word for word from away-loop (re-arm sequence, scheduling check, stale-tick rule, status table, full report, wake-up trap), each marked with where it comes from, with what changed for this skill after each |
 
 
 ## Background
@@ -1068,7 +1128,7 @@ working while I'm away" should never slide into roadmap-wide authority because t
 Away-loop stays small and every away tick pays only for the text it uses. A change to one does not reach sessions
 that loaded the other.
 
-The cost is duplication: the re-arm sequence, the report sections and the known failure modes exist twice. They live
+The cost is duplication: the re-arm sequence, the report sections and the wake-up trap exist twice. They live
 in one file, [references/shared-with-away-loop.md](references/shared-with-away-loop.md), that names away-loop as the
 origin, so a change to one is a reminder to change the other. If the two drift apart, a check that diffs the shared
 blocks is the answer. Once the on-loop has run a while, away-loop may turn out to be the on-loop with its autonomy

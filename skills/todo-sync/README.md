@@ -142,6 +142,8 @@ in the list folder except the lists, so a stray working file never reaches the b
 !/todo-sync/*/*.md
 ```
 
+A file git already tracks stays tracked after you ignore it; untrack it with `git rm --cached <file>`.
+
 ## Examples
 
 **A list in use.** Session `0b9e7c1a-…` working on a billing export writes

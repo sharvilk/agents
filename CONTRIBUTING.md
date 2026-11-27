@@ -11,7 +11,8 @@ directly, so a change made here would be overwritten by the next publish.
 
 - **Issues are welcome.** A bug, a confusing passage in a skill, a case a skill handles badly, or an idea. Say which
   skill and version (the version is in `.claude-plugin/marketplace.json`), what you did, what you expected, and
-  what happened.
+  what happened. For the chat-app skills, name `chat-save`, `chat-restore` or `file_chat.py` and say which app
+  (ChatGPT or claude.ai) you used; they have no version number, so give the date you downloaded the repo.
 - **Pull requests are read as proposals.** Open one if showing the change is the clearest way to explain it. I read
   it and re-make the change at the source. It ships in a later update, and I credit you in the pull request that
   brings it here. Your pull request is then closed, because its commit is not the one that ships.

@@ -12,8 +12,7 @@ live in the todo file's "Waiting for you", with a link to their write-up.
 
 ## The heading line, exactly
 
-Fill this and nothing else; no extra characters, no other separators. The time is the output of
-`date +%Y-%m-%dT%H:%M%z` run in the same command that appends the entry, never typed or estimated:
+Fill this and nothing else; no extra characters, no other separators. The time follows SKILL.md step 10:
 
 ```text
 ## D-014 · 2026-11-24T14:07+0000 · B · pending
