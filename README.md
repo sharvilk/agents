@@ -1,12 +1,12 @@
 # agents
 
 The AI-agent kit I use and share. It starts with skills for Claude Code: plain folders you can browse, read and
-copy. More kinds will join as they are ready: commands, prompts, and guides to ways of working with agents. Each
-skill's own README is its front page.
+copy. It also has guides to ways of working with agents. More kinds will join as they are ready: commands and
+prompts. Each skill's own README is its front page.
 
 ## Skills
 
-Each skill has one category, named by what it is about.
+Each Claude Code skill has one category, named by what it is about; the chat apps' skills have a section of their own.
 
 ### Sessions
 
@@ -32,6 +32,24 @@ Reviewing and building software: plans, pull requests and code.
 on-loop works a roadmap while you come and go, and logs each decision for you to keep, change or veto. Each README
 has a section comparing the two.
 
+### Skills for the chat apps
+
+Not Claude Code skills: these are uploaded as ZIPs to the ChatGPT and claude.ai chat apps, and are not installed
+with the plugin system below.
+
+| Skill | What it does |
+| --- | --- |
+| [`chat-apps`](skills/chat-apps/README.md) | Two skills, `chat-save` and `chat-restore`, plus a Mac script: save a ChatGPT or claude.ai conversation into a verified archive, keep it in a private GitHub repo, and continue it in a new chat. |
+
+## Guides
+
+Ways of working you read, as opposed to skills an agent runs. The [guides index](guides/README.md) lists them.
+
+| Guide | What it is for |
+| --- | --- |
+| [Writing your own gates](guides/writing-gates.md) | Turning a mistake you keep fixing by hand into a check that runs by itself, and keeping that check honest. |
+| [Documenting projects](guides/documenting-projects.md) | Making the repository the record of decisions, so nothing important lives only in a chat. |
+
 ## Use with Claude Code
 
 Each skill installs as a Claude Code plugin. Add the marketplace once, then install what you want:
@@ -41,14 +59,15 @@ Each skill installs as a Claude Code plugin. Add the marketplace once, then inst
 /plugin install todo-sync@agents
 ```
 
-Swap `todo-sync` for any skill in the table. Installing `checkpoint`, `away-loop` or `on-loop` also installs
+Swap `todo-sync` for any Claude Code skill in the tables (the chat apps' skills are uploaded to those apps instead). Installing `checkpoint`, `away-loop` or `on-loop` also installs
 `todo-sync`, which they need. Start a new session afterwards so the skill is loaded.
 
 A skill runs with your permissions, so read it before you install it. Each skill's README says what it reads,
 writes and runs.
 
 **Without the plugin system**, copy the skill's folder, `skills/<name>/`, to `~/.claude/skills/<name>/` (or to
-`$CLAUDE_CONFIG_DIR/skills/<name>/` if you set that variable). `checkpoint`, `away-loop` and `on-loop` need
+`$CLAUDE_CONFIG_DIR/skills/<name>/` if you set that variable). The exception is `skills/chat-apps/`: its skills are
+for the chat apps and are uploaded there, never copied into Claude Code. `checkpoint`, `away-loop` and `on-loop` need
 `todo-sync` copied too. `crossfire` also uses its two agent files, copied from `skills/crossfire/agents/` to
 `~/.claude/agents/`: they are recommended, because they make its reviewers read-only.
 
@@ -75,8 +94,13 @@ Markdown that another agent can read, but those parts need that agent's own equi
  ├── checkpoint/
  ├── away-loop/
  ├── crossfire/          its two reviewer agents are in crossfire/agents/
- └── on-loop/
- .claude-plugin/marketplace.json     the only packaging file; Claude Code installs from it
+ ├── on-loop/
+ └── chat-apps/          skills for the ChatGPT and claude.ai apps, uploaded as ZIPs; not a plugin
+ guides/
+ ├── README.md           the index of guides
+ ├── writing-gates.md
+ └── documenting-projects.md
+ .claude-plugin/marketplace.json     the only plugin packaging file; Claude Code installs from it
 ```
 
 ## Contributing

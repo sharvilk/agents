@@ -5,9 +5,6 @@ mode"). It starts only on those phrases. Looser words ("keep going", "carry on")
 wants the on-loop and wait for the phrase. Over this skill's own PAUSED marker, "start the on-loop" means resume, with
 no gates and no new charter; over its own ARMED marker it gets one line: already running.
 
-Every time written (the state line, the claim, a heading) is built from `date +%Y-%m-%dT%H:%M%z` in the same command
-that writes it, so a later tick can compare it with another; never type or estimate one.
-
 ```
  start ──► gate 1 roadmap ──► gate 2 charter ──► gate 3 scheduling ──► gate 4 claim ──► ARM
    │        (none: draft one,    (typed yes in      (no CronCreate:       (another on-loop
@@ -51,7 +48,12 @@ Show a charter and wait for a typed yes in a later message. No charter with limi
 - the scope (which items), and the **autonomy** setting: `minor` (decide class A, queue class B), `standard` (the
   default: decide A, decide and flag B) or `ask-first:<area>` (queue B for the named area). Nothing is above
   `standard`; class C and D are not reachable by any setting;
-- the limits in [limits-and-drift.md](limits-and-drift.md), each with its default, in words the user can change;
+- the limits in [limits-and-drift.md](limits-and-drift.md), each with its default, in words the user can change,
+  among them the **load line**: a number of cores against the 5-minute load average (default about 70% of the
+  machine's cores, rounded and shown as a number);
+- the **live checks**: which real side effects (a real notification, a real external run) the loop may trigger to
+  prove an item, and how many times; default none, and each allowance is spent once (the state line's `live checks
+  spent` counter);
 - start time, and end time **7 days from the start** (the charter's length; it is not the job's expiry);
 - the branch naming (the project's own convention plus a `loop` suffix), the ledger's place and the progress folder,
   if the project keeps one;
@@ -90,14 +92,11 @@ already in `CronList` is not evidence the scheduler works.
 
 One on-loop per repo. The claim is a file named `on-loop-claim.json` in the repo's shared git folder
 (`git rev-parse --git-common-dir`), never committed, holding: session id, charter end date, job id, start time and
-last beat. Every write of the claim reads it first, writes the new content to a temp file beside it and renames that into
-place; it never opens the claim for writing in place (an in-place open empties the file if the write fails). A claim
-written as `released <time>`, or one that has expired, is free. If one exists whose charter end
-date equals this session's marker, it is this charter's own (a session resumed after a checkpoint): adopt it and
-write the new session id. Any other: say whose it is and stop. A claim whose last beat is more than 2 hours old is
-reported as stale; taking it over needs the user's word. Renew, resume and every re-arm update the claim's charter
-end date, job id and session id; releasing it means rewriting it as `released <time>`; nothing deletes it. If
-writing it is refused, say so in one line and continue single-session: no claim, and this gate is not checked.
+last beat, written as SKILL.md section 1 says. A claim written as `released <time>`, or one that has expired, is
+free. If one exists whose charter end date equals this session's marker, it is this charter's own (a session resumed
+after a checkpoint): adopt it and write the new session id. Any other: say whose it is and stop. A claim whose last
+beat is more than 2 hours old is reported as stale; taking it over needs the user's word. If writing it is refused,
+say so in one line and continue single-session: no claim, and this gate is not checked.
 
 ## Arm
 
@@ -128,7 +127,7 @@ Esc or Ctrl+C does not stop a fixed-interval job.
 
 ## What goes in the todo file
 
-At the top, so a tick reads it first and a compaction cannot lose it:
+At the top, so a tick reads it first and a compaction cannot lose it (every time in it follows SKILL.md step 10):
 
 ```md
 ## Loop state: ARMED — on-loop — charter valid until 2026-12-01T09:00+0000 — job 5c0e91a2
@@ -138,13 +137,13 @@ Owns: "On-loop charter", "On-loop state", "Roadmap view", "Decisions to review",
 ## On-loop charter
 Roadmap: <source and commit/snapshot>. Scope: <items>. Autonomy: standard. Models: <rule>.
 Single-threaded: <yes (no subagents, the loop runs each check itself, PRs and entries marked "checked by the builder only") | no>.
-Limits: <each, with its value>. Branches: <convention> + "loop". Ledger: <folder>, log branch <name>, PR <link>.
+Limits: <each, with its value, the load line among them>. Live checks: <none | what, how many>. Branches: <convention> + "loop". Ledger: <folder>, log branch <name>, PR <link>.
 Approved: "<the user's words>" on <date>.
 Standing answers: <none yet>.
 
 ## On-loop state
 job <id> created <time>, speed work|quiet · last beat <time> · last user message <time> · away mark <none|time> · last full report <time>
-counters: fix rounds <item: n> · same failure <check: n> · beats without progress <n> · parked in a row <n>
+counters: fix rounds <item: n> · same failure <check: n> · beats without progress <n> · parked in a row <n> · held beats <n> (reset when the load clears) · live checks spent <n of m>
 roadmap commit read: <sha> · claim: held|released <time>|refused (single-session)
 
 ## Roadmap view

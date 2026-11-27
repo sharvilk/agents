@@ -62,8 +62,7 @@ Each top-level session keeps its own list, one file per session, in the list fol
   copy; until they say so, repeat this at each session start and after each compaction.
 - **A subagent keeps no list file.** It shares its parent's session id and scratchpad, so "its" file
   would be the parent's. It puts its open items in its report to the parent instead; if it needs a working
-  list during a long task, it keeps one in the scratchpad (or a temporary folder when the session has none),
-  named for its task, never in the list folder.
+  list during a long task, it keeps one in the scratchpad, named for its task, never in the list folder.
 - **Write only your own file, and don't copy other sessions' lists into it.** The other files in the
   folder are other agents' work.
 - Continuing another session's work in a new chat? Ask the user which session's file it is, and take it
@@ -73,24 +72,11 @@ Each top-level session keeps its own list, one file per session, in the list fol
   it as your in-session view, but the file is your working list: update both in the same turn. Without one, the
   file is the list.
 
-The file is not a handoff: anything another agent or a later session needs goes in the repo, in a committed
-and pushed doc. A project's tracker in its repo is separate.
-
-**The folder holds todo lists only.** `<initiative>/` contains `<session-id>.md` files and nothing else —
-no scratch, working files, harnesses, copies of repo code, logs, JSON, backup copies, subfolders or
-symlinks. A list folder used as a scratchpad can grow to thousands of files, copies of other
-repositories' source and symlinks, and a git backup of the config folder that holds it can then fail on every
-run. If you keep your config folder in git as a backup, ignore everything in the list folder
-except the lists (`/todo-sync/*/*` with `!/todo-sync/*/*.md`), and note that a file git already tracks stays
-tracked after you ignore it. A backup copy of a list adds nothing: the diff before saving and the transcript
-already cover it.
-
-Throwaway scratch goes in the session scratchpad, or a temporary folder when the session has none. Working
-files needed across sessions or days go in a repo — a committed doc, or a gitignored folder in that project's
-main checkout — never elsewhere in the config folder. Untracked is not ignored: add the folder to that
-checkout's `.git/info/exclude`, which is never committed, and confirm with `git check-ignore <folder>`;
-otherwise one `git add -A` commits it. Not a folder in a branch worktree: removing the worktree after its PR
-merges deletes ignored files without a warning.
+**The folder holds todo lists only.** `<initiative>/` contains `<session-id>.md` files and nothing else: no
+scratch, working files, copies of repo code, logs, JSON, subfolders, symlinks or backup copies of a list (the diff
+before saving already covers it). Scratch goes in the session scratchpad, or a temporary folder when the session has
+none; files other agents or sessions must see go in a committed, pushed doc in a repo, which the list points to
+(README: backing the folder up; a file git already tracks stays tracked after you ignore it).
 
 ## What goes in the file
 
@@ -101,8 +87,7 @@ Only what you need to act on:
 - **Done** — with evidence.
 - **Dropped** — with the reason.
 
-Nothing else is persisted there. Save a general lesson to memory when you learn it. Methods, research and
-handoff docs go to the project's docs, committed and pushed. Throwaway output goes to the scratchpad.
+Nothing else is persisted there. Methods, research and handoff docs go to the project's docs.
 
 ## At session start and after compaction
 
@@ -185,8 +170,7 @@ confirm — listed under Unverified" is a real answer. "Yes, I have them all" is
 - **On discovering work:** add it immediately, with enough context to act on later. Future-you will not
   remember what "fix the thing" meant.
 - **Before reporting done:** re-read the list. Anything still open goes in the reply as remaining work.
-- **On handing off:** every open item stays in your list. The handoff itself — context, decisions, how to
-  continue — goes in a committed, pushed doc, and the list points to it.
+- **On handing off:** every open item stays in your list; the handoff doc is the one named above.
 
 ## Closing out
 
@@ -220,10 +204,9 @@ then does it count as moved.
    If it prints nothing, check the name against a listing of the list folders before concluding there is nothing
    to close. A `.md` file whose name is not a session id is not a list: report it, and don't delete it.
 2. Close out your own list as above.
-3. For each other list, show the user its open items and ask whether that session is still running: a running
-   session keeps writing its list. Delete it only when the user confirms, and only once each of its open items is
-   done, dropped with a reason, or moved somewhere the user names. A blanket yes ("all of them") is not enough:
-   show each list's open items first, and delete only the lists the user confirms one by one.
+3. For each other list, show its open items and ask whether that session is still running: a running session keeps
+   writing its list. Delete it only on the user's confirmation of that list, once each open item is done, dropped
+   with a reason, or moved. A blanket yes ("all of them") is not enough.
 4. Remove each of the initiative's folders only once it is empty, with `rmdir`.
 
 Never delete a list because it looks old.
@@ -240,9 +223,8 @@ It only reads. It prints one line per list that has not changed for 14 days (`--
 first: the date, the folder, the initiative, the session id and an approximate count of open checkboxes. Show the
 user its table, and ask which lists to close.
 
-For each list they pick, show its open items. A blanket yes ("all of them") is not enough: show every picked list's
-open items first. Delete a list only when the user confirms that list, and only once each open item is done,
-dropped with a reason, or moved somewhere the user names.
+For each list they pick, follow step 3 of closing the whole initiative (above): show its open items, delete only on
+the user's confirmation of that list.
 
 - **A list untouched for a while can still belong to a session the user means to resume.** The user decides, never
   you.

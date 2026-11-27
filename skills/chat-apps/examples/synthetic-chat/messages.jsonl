@@ -1,0 +1,5 @@
+{"n": 1, "role": "user", "text": "This is a synthetic Chat Save pilot. Reply “Pilot A acknowledged.”", "files": ["f000001", "f000002"], "evidence": "model_copy"}
+{"n": 2, "role": "assistant", "text": "Pilot A acknowledged.", "files": [], "evidence": "model_copy"}
+{"n": 3, "role": "user", "text": "The review board calls this constraint the north window rule.", "files": [], "evidence": "model_copy"}
+{"n": 4, "role": "assistant", "text": "Open decision: choose between the Friday and Monday review slots.", "files": [], "evidence": "model_copy"}
+{"n": 5, "role": "user", "text": "Keep that decision open and retain both original attachments.", "files": [], "evidence": "model_copy"}

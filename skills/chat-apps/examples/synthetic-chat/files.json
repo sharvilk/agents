@@ -1,0 +1,18 @@
+[
+  {
+    "file_id": "f000001",
+    "kind": "upload",
+    "name": "fixture.md",
+    "message": 1,
+    "status": "captured",
+    "source": "uploads/fixture.md"
+  },
+  {
+    "file_id": "f000002",
+    "kind": "upload",
+    "name": "fixture.png",
+    "message": 1,
+    "status": "captured",
+    "source": "uploads/fixture.png"
+  }
+]
